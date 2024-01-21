@@ -21,6 +21,7 @@ int main()
     double aAngle;
     double bAngle;
     double cAngle = 90;
+    string units;
 
     // Draw a pretty picture (helps the user to better understand what they are entering)
     cout << "  |* ";
@@ -33,23 +34,28 @@ int main()
     cout << "\n  |_____________________* ";
     cout << "\n             Y \n\n";
 
+    // Get the unit of measure.
+	cout << "Enter the unit of measure you are using: ";
+	cin >> units;
+	cout << "You entered " << units << '.' << endl;
+
 	// Get the Length of "x".
-	cout << "Enter the length of the first side (x) adjacent to the right angle in mm: ";
+	cout << "Enter the length of the first side (x) adjacent to the right angle: ";
 	cin >> xLength;
-	cout << "You entered " << xLength << " mm." << endl;
+	cout << "You entered " << xLength << ' ' << units << '.' << endl;
 
 	// Clear the input buffer
 	cin.clear();
 	cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
 	// Get the Length of "y".
-	cout << "Enter the length of the second side (y) adjacent to the right angle in mm: ";
+	cout << "Enter the length of the second side (y) adjacent to the right angle: ";
 	cin >> yLength;
-	cout << "You entered " << yLength << " mm." << endl;;
+	cout << "You entered " << yLength << ' ' << units << '.' << endl;;
 
     // Calculate the Hypotenuse
     zLength = sqrt(xLength * xLength + yLength * yLength);
-    cout << "Hypotenuse = " << zLength << endl;
+    cout << "Hypotenuse = " << zLength << ' ' << units << '.' << endl;
 
     // Calculate angles
     // Calculate Angle 'a'
