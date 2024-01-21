@@ -2,7 +2,8 @@
 // Author: Gregory K. Bowne
 // Date:   20 Oct 2023
 // Time:   23:39:08
-// Brief:  This program calculates the 
+// Brief:  This program calculates the right triangle triganometry and to help determine angles.
+//         This also 
 
 #include <iostream>
 #include <string>
