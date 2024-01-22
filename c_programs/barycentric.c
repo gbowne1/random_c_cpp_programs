@@ -1,4 +1,4 @@
-// File:   lowpassfil.c
+// File:   barycentric.c
 // Author: Gregory K. Bowne
 // Date:   12 Sept 2023
 // Time:   20:47:21
