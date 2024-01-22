@@ -7,25 +7,18 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
-#include <math.h>
 
 int main()
 {
-    &t = time(NULL);
+    time_t t = time(NULL);
     struct tm* lt = localtime (&t);
-    struct date* dt = datetime (&t);
 
-    getdate(&dt);
     printf("System's current date\n");
-    printf(%d/%d/%d,
-           dt.da_day,
-           dt.da_mon,
-           dt.da_year);
-    printf ("The time is %s\n", asctime (localtime));
+    printf("%d/%d/%d\n",
+           lt->tm_mday,
+           lt->tm_mon + 1,
+           lt->tm_year + 1900);
+    printf ("The time is %s\n", asctime (lt));
     return 0;
-
-    {
-        time_t 'start';
-    };
 
 }
