@@ -15,7 +15,8 @@ You can compile and run these programs with most C and C++ compilers.
 
 ## Contributing
 
-Clone or fork this project.  Please feel free to contribute to this.  Bug reports and Pull Requests on this are welcome
+Clone or fork this project.  Please feel free to contribute to this. Bug reports and Pull Requests on this are welcome.
+Please make a commit change or PR branch with an appropriate name for change and PR back to main.
 
 ## License
 

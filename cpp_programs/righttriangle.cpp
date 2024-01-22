@@ -3,7 +3,7 @@
 // Date:   20 Oct 2023
 // Time:   23:39:08
 // Brief:  This program calculates the right triangle triganometry and to help determine angles.
-//         This also 
+//         This also useful in a metalworking or machining environment
 
 #include <iostream>
 #include <string>
