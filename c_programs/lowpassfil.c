@@ -58,9 +58,21 @@ double calculateInductance(double fc, double C)
 
 int main()
 {
-	double R = 1000;  // in ohms
-	double C = 10e-6; // in farads
-	double f = 500;	  // in hertz
+	double R;	// in ohms
+	double C;	// in farads
+	double f;	// in hertz
+
+	// User input: Resistance
+	printf("Resistance (ohms): ");
+	scanf("%lf", &R);
+
+	// User input: Capacity
+	printf("Capacity (Farads): ");
+	scanf("%lf", &C);
+
+	// User input: Frequency
+	printf("Frequency (hz): ");
+	scanf("%lf", &f);
 
 	// Perform the calculations
 	double fc = calculateCutoffFrequency(R, C);
