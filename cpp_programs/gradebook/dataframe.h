@@ -11,6 +11,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <iostream>
 
 /**
  * Class DataFrame
@@ -23,6 +24,8 @@ private:
     std::vector<std::string> header;
     // CSV data
     std::map<std::string, std::vector<std::string>> data;
+
+    std::vector<size_t> getMaxColumnSizes();
 public:
     DataFrame();
     DataFrame(const std::string &fileName);
@@ -63,6 +66,13 @@ public:
     void clear();
 
     /**
+     * Initializes the DataFrame with the header
+     * 
+     * @param header Header as a vector <string>
+    */
+    void initialize(const std::vector<std::string> &header);
+
+    /**
      * Adds a line of values to the end of the DataFrame
      * 
      * @param row Map of <column name, value>
@@ -91,6 +101,13 @@ public:
      * @returns Status code, where 0 is success
     */
     int save(const std::string &fileName);
+
+    /**
+     * Prints DataFrame as a table.
+     * 
+     * @param out Stream to output to. Default is std::cout
+    */
+    void print(std::ostream& out = std::cout);
 };
 
 #endif
