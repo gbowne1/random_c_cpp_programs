@@ -12,6 +12,7 @@
 #include <string>
 #include <time.h>
 #include <chrono>
+#include "dataframe.h"
 
 typedef struct {
     std::string name;
@@ -47,6 +48,8 @@ private:
     std::map<std::string, Assignment> assignments;
     std::map<
         std::pair<std::string, std::string>, Grade> grades;
+
+    bool checkFileExists(const std::string& fileName) const;
 public:
     void addTeachersFromCSV(const std::string &fileName);
     void addTeacher(const std::string &teacherID, const Teacher &teacher);
@@ -71,8 +74,17 @@ public:
     float calculateAverage(const std::string &studentID) const;
     float calculateClassAverage(const std::string &classID) const;
 
-    void save(const std::string &filename) const;
-    void load(const std::string &filename);
+    DataFrame studentsToDataFrame() const;
+    DataFrame teachersToDataFrame() const;
+    DataFrame classesToDataFrame() const;
+    DataFrame assignmentsToDataFrame() const;
+    DataFrame gradesToDataFrame() const;
+
+    void saveGrades(const std::string &fileName) const;
+    void loadGrades(const std::string &fileName);
+
+    void saveStudents(const std::string &fileName) const;
+    void loadStudents(const std::string &fileName);
 };
 
 #endif
