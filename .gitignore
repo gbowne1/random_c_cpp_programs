@@ -56,4 +56,4 @@ dkms.conf
 **/CMakeCache.txt
 **/CMakeFiles
 **/Makefile
-cpp_programs/build/*
+cpp_programs/build/**/*
