@@ -12,6 +12,7 @@ using namespace std;
 
 enum PlayType
 {
+	NONE,
 	ROCK,
 	PAPER,
 	SCISSORS
@@ -21,7 +22,7 @@ PlayType ConversionVal(char);
 void GetPlays(ifstream &, ifstream &, PlayType &, PlayType &, bool &);
 void PrintBigWinner(int, int);
 void ProcessPlays(int, PlayType, PlayType, int &, int &);
-void RecordAwin(char, int, int &);
+void RecordAWin(char, int, int &);
 
 int main()
 {
@@ -137,6 +138,9 @@ PlayType ConversionVal(/* in */ char someChar) // Play character
 	case 'S':
 		return SCISSORS;
 	}
+
+	// Invalid option
+	return NONE;
 }
 
 //********************************************************************
@@ -168,9 +172,9 @@ void ProcessPlays(/* in */ int gameNumber,	  // Game number
 	else if ((playForA == PAPER && playForB == ROCK) ||
 			 (playForA == SCISSORS && playForB == PAPER) ||
 			 (playForA == ROCK && playForB == SCISSORS))
-		RecordAwin('A', gameNumber, winsForA); // Player A wins
+		RecordAWin('A', gameNumber, winsForA); // Player A wins
 	else
-		RecordAwin('B', gameNumber, winsForB); // Player B wins
+		RecordAWin('B', gameNumber, winsForB); // Player B wins
 }
 
 //******************************************************************
@@ -210,8 +214,8 @@ void PrintBigWinner(/* in */ int winsForA, // A's win count
 
 {
 	cout << endl;
-	cout << "Player A has won " << winsForA << "games." << endl;
-	cout << "Player B has won " << winsForB << "games." << endl;
+	cout << "Player A has won " << winsForA << " games." << endl;
+	cout << "Player B has won " << winsForB << " games." << endl;
 	if (winsForA > winsForB)
 		cout << "Player A has won the most games." << endl;
 	else if (winsForB > winsForA)
