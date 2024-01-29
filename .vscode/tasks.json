@@ -1,0 +1,25 @@
+{
+    "command": "g++", // change this name to something else if you'd like
+    "args": [
+        "-Wall",
+		"-Werror",
+		"-Wextra",
+		"-pedantic",
+		"-Wpedantic",
+    ],
+    "problemMatcher": {
+        "owner": "cpp",
+        "fileLocation": [
+            "relative",
+            "${workspaceRoot}"
+        ],
+        "pattern": {
+            "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+            "file": 1,
+            "line": 2,
+            "column": 3,
+            "severity": 4,
+            "message": 5
+        }
+    }
+}
