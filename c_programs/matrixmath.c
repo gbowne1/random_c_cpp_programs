@@ -1,8 +1,10 @@
-// File:   tempconvert.c
+// File:   matrixmath.c
 // Author: Gregory K. Bowne
 // Date:   11 JUN 1999
 // Time:   12:18:31
-// Brief:  This program that can convert C to F and F to C
+// Brief:  This program helps with Matrix math.  Matrix math in linear algebra involves the
+// manipulation and analysis of matrices, which are rectangular arrays of numbers arranged in
+// rows and columns. The numbers in these matrices are called elements or entries
 
 // Ignoring clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
 // IntelliSense warning as the default compiler already uses C11
