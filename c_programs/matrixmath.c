@@ -4,6 +4,10 @@
 // Time:   12:18:31
 // Brief:  This program that can convert C to F and F to C
 
+// Ignoring clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
+// IntelliSense warning as the default compiler already uses C11
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <stdio.h>
 #include <stdbool.h>
 
