@@ -16,14 +16,14 @@ int main() {
 
     // Input the order of the matrix
     printf("Enter Order of Matrix: ");
-    scanf_s("%d", &n);
+    scanf("%d", &n);
 
     // Input the matrix elements
     printf("Enter Coefficient of Matrix:\n");
     for (i = 1; i <= n; i++) {
         for (j = 1; j <= n; j++) {
             printf("a=%d ", i);
-            scanf_s("%f", &a[i][j]);
+            scanf("%f", &a[i][j]);
         }
     }
 
@@ -31,12 +31,12 @@ int main() {
     printf("Enter Initial Guess Vector:\n");
     for (i = 1; i <= n; i++) {
         printf("x=%d ", i);
-        scanf_s("%f", &x[i]);
+        scanf("%f", &x[i]);
     }
 
     // Input the tolerable error
     printf("Enter Tolerable Error: ");
-    scanf_s("%f", &error);
+    scanf("%f", &error);
 
     while (fabs(lambda_new - lambda_old) > error) {
         // Matrix-vector multiplication

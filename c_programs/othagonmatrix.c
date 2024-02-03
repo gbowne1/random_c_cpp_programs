@@ -55,7 +55,7 @@ int main()
 {
 	int size;
 	printf("Enter size of square matrix (e.g., 3 for 3x3): ");
-	scanf("%d", &size);
+	scanf_s("%d", &size);
 
 	int matrix[size][size], transpose[size][size], product[size][size];
 
@@ -64,7 +64,7 @@ int main()
 	{
 		for (int j = 0; j < size; j++)
 		{
-			scanf("%d", &matrix[i][j]);
+			scanf_s("%d", &matrix[i][j]);
 		}
 	}
 
