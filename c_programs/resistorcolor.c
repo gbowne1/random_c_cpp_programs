@@ -11,6 +11,8 @@
 #include <string.h>
 
 #define MAX_COLORS 10
+	
+char *COLORS[MAX_COLORS] = {"black", "brown", "red", "orange", "yellow", "green", "blue", "violet", "gray", "white"};
 
 typedef struct
 {
@@ -25,16 +27,10 @@ ResistorColors createResistorColors()
 	ResistorColors rc;
 
 	// Initialize colorNames
-	rc.colorNames[0] = "black";
-	rc.colorNames[1] = "brown";
-	rc.colorNames[2] = "red";
-	rc.colorNames[3] = "orange";
-	rc.colorNames[4] = "yellow";
-	rc.colorNames[5] = "green";
-	rc.colorNames[6] = "blue";
-	rc.colorNames[7] = "violet";
-	rc.colorNames[8] = "gray";
-	rc.colorNames[9] = "white";
+	for (int i = 0; i < MAX_COLORS; i++)
+	{
+		rc.colorNames[i] = COLORS[i];
+	}
 
 	// Initialize colorValues
 	for (int i = 0; i < MAX_COLORS; i++)
@@ -97,14 +93,46 @@ char **calculateColorCodes(ResistorColors rc, double resistance, int numBands)
 	return colorCodes;
 }
 
-int main()
+void usage(char *appName)
 {
+    printf("Usage: %s <colors>\n", appName);
+    printf("Colors: ");
+    for (int i = 0; i < MAX_COLORS; i++) {
+        printf("%s ", COLORS[i]);
+    }
+    printf("\n");
+}
+
+int getNumBands(int numParameters)
+{
+    return numParameters - 1;
+}
+
+char populateColors(char **colors, int numParameters, char **parameters)
+{
+    for (int i = 0, j = 1; j < numParameters; i++, j++)
+    {
+        colors[i] = parameters[j];
+    }
+}
+
+int main(int argc, char **argv)
+{
+    if (argc < 2)
+    {
+        usage(argv[0]);
+        return 0;
+    }
+
+    int numBands = getNumBands(argc);
+
+    char *colors[MAX_COLORS];
+    populateColors(colors, argc, argv);
+
 	ResistorColors rc = createResistorColors();
-	char *colors[MAX_COLORS];
-	int numBands;
-	// Get the colors from the user...
 	double resistance = calculateResistance(rc, colors, numBands);
 	printf("The resistance is %.2f ohms.\n", resistance);
 	calculateColorCodes(rc, resistance, numBands);
-	return 0;
+
+    return 0;
 }
