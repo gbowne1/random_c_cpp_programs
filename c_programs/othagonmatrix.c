@@ -9,55 +9,52 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
-void transposeMatrix(int size, int matrix[][size], int transpose[][size])
-{
-	for (int i = 0; i < size; i++)
-	{
-		for (int j = 0; j < size; j++)
-		{
-			transpose[j][i] = matrix[i][j];
-		}
-	}
+void transposeMatrix(int size, int **matrix, int **transpose) {
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            transpose[j][i] = matrix[i][j];
+        }
+    }
 }
 
-int isIdentityMatrix(int size, int matrix[][size])
-{
-	for (int i = 0; i < size; i++)
-	{
-		for (int j = 0; j < size; j++)
-		{
-			if (i == j && matrix[i][j] != 1)
-				return 0;
-			if (i != j && matrix[i][j] != 0)
-				return 0;
-		}
-	}
-	return 1;
+int isIdentityMatrix(int size, int **matrix) {
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            if ((i == j && matrix[i][j] != 1) || (i != j && matrix[i][j] != 0)) {
+                return 0;
+            }
+        }
+    }
+    return 1;
 }
 
-void multiplyMatrices(int size, int matrix1[][size], int matrix2[][size], int result[][size])
-{
-	for (int i = 0; i < size; i++)
-	{
-		for (int j = 0; j < size; j++)
-		{
-			result[i][j] = 0;
-			for (int k = 0; k < size; k++)
-			{
-				result[i][j] += matrix1[i][k] * matrix2[k][j];
-			}
-		}
-	}
+void multiplyMatrices(int size, int **matrix1, int **matrix2, int **result) {
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            result[i][j] = 0;
+            for (int k = 0; k < size; k++) {
+                result[i][j] += matrix1[i][k] * matrix2[k][j];
+            }
+        }
+    }
 }
 
 int main()
 {
 	int size;
 	printf("Enter size of square matrix (e.g., 3 for 3x3): ");
-	scanf_s("%d", &size);
+	scanf("%d", &size);
 
-	int matrix[size][size], transpose[size][size], product[size][size];
+	int **matrix = (int **)malloc(size * sizeof(int *));
+	int **transpose = (int **)malloc(size * sizeof(int *));
+	int **product = (int **)malloc(size * sizeof(int *));
+	for (int i = 0; i < size; i++) {
+		matrix[i] = (int *)malloc(size * sizeof(int));
+		transpose[i] = (int *)malloc(size * sizeof(int));
+		product[i] = (int *)malloc(size * sizeof(int));
+	}
 
 	printf("Enter elements of the matrix:\n");
 	for (int i = 0; i < size; i++)
@@ -79,6 +76,15 @@ int main()
 	{
 		printf("The matrix is not orthogonal.\n");
 	}
+
+	for (int i = 0; i < size; i++) {
+    free(matrix[i]);
+    free(transpose[i]);
+    free(product[i]);
+	}
+	free(matrix);
+	free(transpose);
+	free(product);
 
 	return 0;
 }

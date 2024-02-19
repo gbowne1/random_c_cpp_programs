@@ -13,46 +13,69 @@
 #include <stdlib.h>
 #include <math.h>
 
+#define TARGET_VALUE 64
+#define TOLERANCE 0.000001
+
 // Function to calculate the value of the equation
 double func(double x) {
-    return x * x - 64; // Example function x^2 - 64
+    return x * x - TARGET_VALUE;
 }
 
 // Function to calculate the derivative of the equation
 double derivFunc(double x) {
-    return 2 * x; // Derivative of x^2 - 64
+    return 2 * x;
 }
 
 // Implementation of the Newton-Raphson method
-double newtonRaphson(double x, int maxIterations) {
-    for (int i = 0; i < maxIterations; i++) {
-        // Check if the derivative is zero to avoid division by zero
-        if (derivFunc(x) == 0) {
+double newtonRaphson(double x, int maxIterations, double tolerance) {
+    double prev_x = x;
+    for (int i =  0; i < maxIterations; i++) {
+        if (derivFunc(x) ==  0) {
             printf("Derivative is zero, cannot proceed.\n");
-            exit(0);
+            return x; // Return the last valid guess
         }
-        // Update the guess using the Newton-Raphson formula
-        x = x - func(x) / derivFunc(x);
-		printf("Iteration %d, x = %lf, f(x) = %lf\n", i + 1, x, func(x));
+        double h = func(x) / derivFunc(x);
+        prev_x = x;
+        x = x - h;
+        printf("Iteration %d, x = %lf, f(x) = %lf\n", i +  1, x, func(x));
+        if (fabs(x - prev_x) < tolerance) {
+            printf("Converged after %d iterations.\n", i +  1);
+            break;
+        }
     }
     return x;
 }
 
 int main() {
+
     double initialGuess;
     int maxIterations;
+	double targetValue;
+
+	printf("This program calculates the square root of %d using the Newton-Raphson method.\n", TARGET_VALUE);
 
     // Prompt the user for the initial guess
     printf("Enter initial guess: ");
-    scanf("%lf", &initialGuess);
-
+    if (scanf("%lf", &initialGuess) != 1) {
+        printf("Invalid input for initial guess.\n");
+        return 1;
+    }
     // Prompt the user for the maximum number of iterations
     printf("Enter maximum number of iterations: ");
-    scanf("%d", &maxIterations);
+    if (scanf("%d", &maxIterations) != 1) {
+        printf("Invalid input for maximum number of iterations.\n");
+        return 1;
+    }
+
+	double tolerance =  0.0001;
 
     // Call the Newton-Raphson method and print the result
-    double root = newtonRaphson(initialGuess, maxIterations);
-    printf("Approximate root: %lf\n", root);
+    double root = newtonRaphson(initialGuess, maxIterations, tolerance);
+	if (!isnan(root)) {
+    	printf("Approximate root: %lf\n", root);
+	} else {
+   		printf("Failed to find a root.\n");
+	}
 
     return 0;
 }
