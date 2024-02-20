@@ -102,7 +102,7 @@ Polynomial *multiplyPolynomials(Polynomial *poly1, Polynomial *poly2)
 			}
 			if (k == result->num_terms)
 			{
-				result->terms[result->num_terms++] = term; // Adjusted to use -> to access members of the result pointer
+				result->terms[result->num_terms++] == term; // Adjusted to use -> to access members of the result pointer
 			}
 		}
 	}
