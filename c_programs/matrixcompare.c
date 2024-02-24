@@ -8,6 +8,23 @@ bool doMatricesCommute(int n, float a[n][n], float b[n][n]);
 void addMatrices(int n, float a[n][n], float b[n][n], float result[n][n]);
 bool compareMatrices(int n, float a[n][n], float b[n][n]);
 
+void initializeIdentityMatrix(int n, float identity[n][n])
+{
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			if (i == j)
+			{
+				identity[i][j] = 1.0;
+			}
+			else
+			{
+				identity[i][j] = 0.0;
+			}
+		}
+	};
+}
 // Function to calculate the inverse of a matrix
 void inverseMatrix(int n, float a[n][n], float inverse[n][n])
 {

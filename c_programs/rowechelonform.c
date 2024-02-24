@@ -17,7 +17,7 @@ void swapRows(float **M, int row1, int row2, int colCount)
 	}
 }
 
-void toRowEchelonForm(float M[20][20], int rowCount, int colCount)
+void toRowEchelonForm(float **M, int rowCount, int colCount)
 {
 	int lead = 0;
 	for (int r = 0; r < rowCount; r++)
@@ -49,16 +49,21 @@ void toRowEchelonForm(float M[20][20], int rowCount, int colCount)
 		float div = M[r][lead];
 
 		// Handle division by zero
-        if (div != 0) {
-            for (int j = 0; j < colCount; j++)
-            {
-                M[r][j] /= div;
-            }
-        } else {
-			//TODO finish this case handling for div 0
-            // Handle the case where div is zero
-            // You can choose to set the entire row to zero or take another appropriate action
-        }
+		if (div != 0)
+		{
+			for (int j = 0; j < colCount; j++)
+			{
+				M[r][j] /= div;
+			}
+		}
+		else
+		{
+			// Handle division by zero
+			for (int j = 0; j < colCount; j++)
+			{
+				M[r][j] = 0; // Set entire row to zero
+			}
+		}
 
 		for (int j = 0; j < rowCount; j++)
 		{
