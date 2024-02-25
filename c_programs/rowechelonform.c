@@ -1,4 +1,4 @@
-// File:   rowechelongform.c
+// File:   rowechelonform.c
 // Author: Gregory K. Bowne
 // Date:   11 MAY 2003
 // Time:   11:18:24
