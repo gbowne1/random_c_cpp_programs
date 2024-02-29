@@ -7,39 +7,45 @@
 #include <stdio.h>
 
 // Function to calculate total resistance in series
-float calcSeriesResistance(float resistors[], int count) {
-    float total = 0;
-    for (int i = 0; i < count; i++) {
-        total += resistors[i];
-    }
-    return total;
+float calcSeriesResistance(float resistors[], int count)
+{
+	float total = 0;
+	for (int i = 0; i < count; i++)
+	{
+		total += resistors[i];
+	}
+	return total;
 }
 
 // Function to calculate total resistance in parallel
-float calcParallelResistance(float resistors[], int count) {
-    float total = 0;
-    for (int i = 0; i < count; i++) {
-        total += 1 / resistors[i];
-    }
-    return 1 / total;
+float calcParallelResistance(float resistors[], int count)
+{
+	float total = 0;
+	for (int i = 0; i < count; i++)
+	{
+		total += 1 / resistors[i];
+	}
+	return 1 / total;
 }
 
-int main() {
-    int count;
-    printf("Enter the number of resistors: ");
-    scanf("%d", &count);
+int main()
+{
+	int count;
+	printf("Enter the number of resistors: ");
+	scanf("%d", &count);
 
-    float resistors[count];
-    for (int i = 0; i < count; i++) {
-        printf("Enter the resistance of resistor %d: ", i + 1);
-        scanf("%f", &resistors[i]);
-    }
+	float resistors[count];
+	for (int i = 0; i < count; i++)
+	{
+		printf("Enter the resistance of resistor %d: ", i + 1);
+		scanf("%f", &resistors[i]);
+	}
 
-    float series = calcSeriesResistance(resistors, count);
-    float parallel = calcParallelResistance(resistors, count);
+	float series = calcSeriesResistance(resistors, count);
+	float parallel = calcParallelResistance(resistors, count);
 
-    printf("Total resistance in series: %.2f ohms\n", series);
-    printf("Total resistance in parallel: %.2f ohms\n", parallel);
+	printf("Total resistance in series: %.2f ohms\n", series);
+	printf("Total resistance in parallel: %.2f ohms\n", parallel);
 
-    return 0;
+	return 0;
 }

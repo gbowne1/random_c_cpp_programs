@@ -18,10 +18,9 @@ int main() {
     float R1, R2, V, Vout;
 
     do {
-        printf("Enter the first resistance (R1) in ohms: ");
-        scanf("%f", &R1);
-        if (R1 <= 0) printf("Invalid input. Please enter a positive number.\n");
-    } while (R1 <= 0);
+		printf("Enter the first resistance (R1) in ohms: ");
+	} while (scanf("%f", &R1) != 1 || R1 <= 0);
+
 
     do {
         printf("Enter the second resistance (R2) in ohms: ");
