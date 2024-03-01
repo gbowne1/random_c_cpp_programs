@@ -57,3 +57,16 @@ dkms.conf
 **/CMakeFiles
 **/Makefile
 cpp_programs/build/**/*
+
+/.vscode/browse.vc.db
+/.vscode/browse.vc.db-shm
+/.vscode/browse.vc.db-wal
+.vscode/browse.vc.db
+.vscode/browse.vc.db-shm
+.vscode/browse.vc.db-wal
+/browse.vc.db
+/browse.vc.db-shm
+/browse.vc.db-wal
+browse.vc.db
+browse.vc.db-shm
+browse.vc.db-wal
