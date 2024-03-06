@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -7,6 +8,7 @@ void inverseMatrix(int n, float a[n][n], float inverse[n][n]);
 bool doMatricesCommute(int n, float a[n][n], float b[n][n]);
 void addMatrices(int n, float a[n][n], float b[n][n], float result[n][n]);
 bool compareMatrices(int n, float a[n][n], float b[n][n]);
+float determinant(int n, float a[n][n]);
 
 void initializeIdentityMatrix(int n, float identity[n][n])
 {
@@ -28,16 +30,67 @@ void initializeIdentityMatrix(int n, float identity[n][n])
 // Function to calculate the inverse of a matrix
 void inverseMatrix(int n, float a[n][n], float inverse[n][n])
 {
-	// Implement the matrix inversion algorithm here
-	// For simplicity, this is left as a placeholder
+	float det = determinant(n, a);
+	if (det == 0)
+	{
+		printf("Matrix is singular and cannot be inverted.\n");
+		return;
+	}
+
+	float *adjugate = (float *)malloc(n * n * sizeof(float));
+	if (adjugate == NULL)
+	{
+		printf("Memory allocation failed.\n");
+		return;
+	}
+
+	// Initialize adjugate using the allocated memory
+	// Fill adjugate with values
+
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			inverse[i][j] = adjugate[i * n + j] / det;
+		}
+	}
+
+	free(adjugate);
 }
 
 // Function to check if two matrices commute
 bool doMatricesCommute(int n, float a[n][n], float b[n][n])
 {
-	// Implement the check for AB = BA here
-	// For simplicity, this is left as a placeholder
-	return true; // Placeholder return value
+	float ab[n][n], ba[n][n];
+	float result_ab[n][n], result_ba[n][n];
+
+	// Multiply A * B
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			result_ab[i][j] = 0;
+			for (int k = 0; k < n; k++)
+			{
+				result_ab[i][j] += a[i][k] * b[k][j];
+			}
+		}
+	}
+
+	// Multiply B * A
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			result_ba[i][j] = 0;
+			for (int k = 0; k < n; k++)
+			{
+				result_ba[i][j] += b[i][k] * a[k][j];
+			}
+		}
+	}
+
+	return compareMatrices(n, result_ab, result_ba);
 }
 
 // Function to add two matrices
@@ -55,9 +108,17 @@ void addMatrices(int n, float a[n][n], float b[n][n], float result[n][n])
 // Function to compare two matrices
 bool compareMatrices(int n, float a[n][n], float b[n][n])
 {
-	// Implement the comparison of two matrices here
-	// For simplicity, this is left as a placeholder
-	return true; // Placeholder return value
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			if (a[i][j] != b[i][j])
+			{
+				return false;
+			}
+		}
+	}
+	return true;
 }
 
 int main()
