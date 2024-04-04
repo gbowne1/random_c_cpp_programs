@@ -56,30 +56,45 @@ int main()
 	printf("Complex Quadratic Root Calculator\n");
 	printf("Please enter complex numbers in the format: real imaginary\n");
 
-	// Prompt the user for the real and imaginary parts of the complex numbers
-	printf("Enter the real and imaginary parts of the first complex number (a): ");
-	while (scanf("%lf %lf", &realPart, &imagPart) != 2)
-	{
-		printf("Invalid input for the first complex number.\n");
-		return 1;
-	}
-	a = realPart + imagPart * I;
+	// Loop to get coefficients with input validation
+    while (1) {
+        printf("Enter the real and imaginary parts of the first complex number (a): ");
+        if (scanf("%lf %lf", &realPart, &imagPart) != 2) {
+            printf("Invalid input. Please enter two numbers (real and imaginary).\n");
+            clearInputBuffer();
+            continue;
+        }
+        a = realPart + imagPart * I;
+        break;
+    }
 
-	printf("Enter the real and imaginary parts of the second complex number (b): ");
-	while (scanf("%lf %lf", &realPart, &imagPart) != 2)
-	{
-		printf("Invalid input for the second complex number.\n");
-		return 1;
-	}
-	b = realPart + imagPart * I;
+    while (1) {
+        printf("Enter the real and imaginary parts of the second complex number (b): ");
+        if (scanf("%lf %lf", &realPart, &imagPart) != 2) {
+            printf("Invalid input. Please enter two numbers (real and imaginary).\n");
+            clearInputBuffer();
+            continue;
+        }
+        b = realPart + imagPart * I;
+        break;
+    }
 
-	printf("Enter the real and imaginary parts of the third complex number (c): ");
-	while (scanf("%lf %lf", &realPart, &imagPart) != 2)
-	{
-		printf("Invalid input for the third complex number.\n");
-		return 1;
-	}
-	c = realPart + imagPart * I;
+    while (1) {
+        printf("Enter the real and imaginary parts of the third complex number (c): ");
+        if (scanf("%lf %lf", &realPart, &imagPart) != 2) {
+            printf("Invalid input. Please enter two numbers (real and imaginary).\n");
+            clearInputBuffer();
+            continue;
+        }
+        c = realPart + imagPart * I;
+        break;
+    }
+
+	// Check for division by zero (a cannot be zero)
+    if (creal(a) == 0.0 && cimag(a) == 0.0) {
+        printf("Error: The coefficient 'a' cannot be zero.\n");
+        return 1;
+    }
 
 	// Calculate the discriminant
 	discriminant = calculateDiscriminant(a, b, c);

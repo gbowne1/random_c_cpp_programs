@@ -9,48 +9,54 @@
 // scalars, and it also has an associated inner product that allows the
 // calculation of angles and lengths
 
-#include <stdio.h>
 #include <math.h>
+#include <stdio.h>
 
-typedef struct {
-    float x;
-    float y;
-    float z;
+typedef struct
+{
+	float x;
+	float y;
+	float z;
 } Vector3D;
 
 // Function to calculate the magnitude of a vector
-float magnitude(Vector3D v) {
-    return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+float magnitude(Vector3D v)
+{
+	return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
 // Function to calculate the dot product of two vectors
-float dotProduct(Vector3D v1, Vector3D v2) {
-    return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+float dotProduct(Vector3D vector1, Vector3D vector2)
+{
+	return vector1.x * vector2.x + vector1.y * vector2.y + vector1.z * vector2.z;
 }
 
 // Function to calculate the cross product of two vectors
-Vector3D crossProduct(Vector3D v1, Vector3D v2) {
-    Vector3D result;
-    result.x = v1.y * v2.z - v1.z * v2.y;
-    result.y = v1.z * v2.x - v1.x * v2.z;
-    result.z = v1.x * v2.y - v1.y * v2.x;
-    return result;
+Vector3D crossProduct(Vector3D vector1, Vector3D vector2)
+{
+	Vector3D result = {0.0f, 0.0f, 0.0f};
+	result.x = vector1.y * vector2.z - vector1.z * vector2.y;
+	result.y = vector1.z * vector2.x - vector1.x * vector2.z;
+	result.z = vector1.x * vector2.y - vector1.y * vector2.x;
+	printf("Warning: Cannot calculate cross product of zero vectors");
+	return result;
 }
 
-int main() {
-    // Example usage
-    Vector3D a = {1.0, 2.0, 3.0};
-    Vector3D b = {4.0, 5.0, 6.0};
+int main()
+{
+	// Example usage
+	Vector3D vector1 = {1.0, 2.0, 3.0};
+	Vector3D vector2 = {4.0, 5.0, 6.0};
 
-    // Calculate the magnitude of vector a
-    printf("Magnitude of a: %.2f\n", magnitude(a));
+	// Calculate the magnitude of vector a
+	printf("Magnitude of a: %.2f\n", magnitude(vector1));
 
-    // Calculate the dot product of vectors a and b
-    printf("Dot product of a and b: %.2f\n", dotProduct(a, b));
+	// Calculate the dot product of vectors a and b
+	printf("Dot product of a and b: %.2f\n", dotProduct(vector1, vector2));
 
-    // Calculate the cross product of vectors a and b
-    Vector3D cross = crossProduct(a, b);
-    printf("Cross product of a and b: (%.2f, %.2f, %.2f)\n", cross.x, cross.y, cross.z);
+	// Calculate the cross product of vectors a and b
+	Vector3D cross = crossProduct(vector1, vector2);
+	printf("Cross product of a and b: (%.2f, %.2f, %.2f)\n", cross.x, cross.y, cross.z);
 
-    return 0;
+	return 0;
 }

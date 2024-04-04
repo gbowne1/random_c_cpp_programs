@@ -4,7 +4,7 @@
  *	Date:   17 Oct 2018
  *	Time:   23:39:08
  *	Brief: This program calculates linear regressions
- */
+*/
 
 #include <algorithm>
 #include <cmath>

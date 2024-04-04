@@ -7,31 +7,36 @@
 //         It is open-source and can be used to understand the calculations involved in filter design
 //         I designed this in particular for the HF frequency ranges of the spectrum
 
-#include <stdio.h>
 #include <math.h>
+#include <stdio.h>
 
 #ifndef M_PI
 #define M_PI 3.141592653589793
 #endif
 
 // Function to calculate the cutoff frequency
-double calculateCutoffFrequency(double R, double C)
+double calculateCutoffFrequency(double resistor, double capacitor)
 {
-	double fc = 1 / (2 * M_PI * R * C);
+	if (resistor <= 0 || capacitor <= 0)
+	{
+		printf("Error: Resistance and capacitance must be positive values.\n");
+		return -1.0; // Or any invalid value to indicate error
+	}
+	double fc = 1 / (2 * M_PI * resistor * capacitor);
 	return fc;
 }
 
 // Function to calculate the gain
-double calculateGain(double f, double fc)
+double calculateGain(double frequency, double fc)
 {
-	double G = 1 / sqrt(1 + pow((f / fc), 2));
+	double G = 1 / sqrt(1 + pow((frequency / fc), 2));
 	return G;
 }
 
 // Function to calculate the attenuation
-double calculateAttenuation(double f, double fc)
+double calculateAttenuation(double frequency, double fc)
 {
-	double A = -10 * log10(1 + pow((f / fc), 2));
+	double A = -10 * log10(1 + pow((frequency / fc), 2));
 	return A;
 }
 
@@ -58,36 +63,49 @@ double calculateInductance(double fc, double C)
 
 int main()
 {
-	double R;	// in ohms
-	double C;	// in farads
-	double f;	// in hertz
+	double resistor;  // in ohms (user input)
+	double capacitor; // in farads (user input)
+	double frequency; // in hertz (user input)
 
 	// User input: Resistance
 	printf("Resistance (ohms): ");
-	scanf("%lf", &R);
+	if (scanf("%lf", &resistor) != 1 || resistor <= 0)
+	{
+		printf("Error: Invalid resistance value. Please enter a positive number.\n");
+		return 1;
+	}
 
 	// User input: Capacity
 	printf("Capacity (Farads): ");
-	scanf("%lf", &C);
+	if (scanf("%lf", &capacitor) != 1 || capacitor <= 0)
+	{
+		printf("Error: Invalid capacitance value. Please enter a positive number.\n");
+		return 1;
+	}
 
 	// User input: Frequency
 	printf("Frequency (hz): ");
-	scanf("%lf", &f);
+	if (scanf("%lf", &frequency) != 1 || frequency <= 0)
+	{
+		printf("Error: Invalid frequency value. Please enter a positive number.\n");
+		return 1;
+	}
 
-	// Perform the calculations
-	double fc = calculateCutoffFrequency(R, C);
-	double G = calculateGain(f, fc);
-	double A = calculateAttenuation(f, fc);
-	double calculatedR = calculateResistor(fc, C);
-	double calculatedC = calculateCapacitor(fc, R);
-	double calculatedL = calculateInductance(fc, C);
-
+	// Perform the calculations (assuming valid input)
+	double fc = calculateCutoffFrequency(resistor, capacitor);
+	if (fc < 0)
+	{
+		return 1; // Error handling from calculateCutoffFrequency
+	}
+	double G = calculateGain(frequency, fc);
+	double A = calculateAttenuation(frequency, fc);
+	double calculatedResistor = calculateResistor(fc, capacitor);
+	double calculatedCapacitor = calculateCapacitor(fc, resistor);
 	// Print the results
 	printf("Cutoff Frequency: %f Hz\n", fc);
 	printf("Gain: %f\n", G);
 	printf("Attenuation: %f dB\n", A);
-	printf("Calculated Resistor: %f ohms\n", calculatedR);
-	printf("Calculated Capacitor: %e farads\n", calculatedC);
-	printf("Calculated Inductance: %e henrys\n", calculatedL);
+	printf("Calculated Resistor: %f ohms\n", calculatedResistor);
+	printf("Calculated Capacitor: %e farads\n", calculatedCapacitor);
 	return 0;
 }

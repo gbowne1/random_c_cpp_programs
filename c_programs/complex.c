@@ -12,7 +12,7 @@ int main() {
     double complex z1 = 1.0 + 3.0 * I;
     double complex z2 = 1.0 - 4.0 * I;
 
-    printf("Working with complex numbers:\n\v");
+    printf("Working with complex numbers:\n");
 
     printf("Starting values: Z1 = %.2f + %.2fi\tZ2 = %.2f %+.2fi\n", creal(z1), cimag(z1), creal(z2), cimag(z2));
 

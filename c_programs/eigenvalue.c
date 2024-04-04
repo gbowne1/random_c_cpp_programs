@@ -1,84 +1,100 @@
-// File:   eigenvalue.c
-// Author: Gregory K. Bowne
-// Date:   12 OCT 2015
-// Time:   9:01:22
-// Brief:  This program does Eigenvalue in C
-
-#include <stdio.h>
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #define SIZE 10
+#define MAX_ITERATIONS 100
 
-int main() {
-    float a[SIZE][SIZE], x[SIZE], x_new[SIZE];
-    float lambda_old = 0, lambda_new = 1, error, temp;
-    int i, j, n, step = 1;
+int main()
+{
+	float x_new[SIZE] = {0.0};
+	float a[SIZE][SIZE], x[SIZE];
+	float lambda_old = 0, lambda_new = 1, error, temp;
+	int i, j, n, step = 1, largest_index;
 
-    // Input the order of the matrix
-    printf("Enter Order of Matrix: ");
-    scanf("%d", &n);
+	// Input the order of the matrix
+	printf("Enter Order of Matrix: ");
+	scanf("%d", &n);
 
-    // Input the matrix elements
-    printf("Enter Coefficient of Matrix:\n");
-    for (i = 1; i <= n; i++) {
-        for (j = 1; j <= n; j++) {
-            printf("a=%d ", i);
-            scanf("%f", &a[i][j]);
-        }
-    }
+	// Check if the matrix size exceeds the maximum allowed size
+	if (n > SIZE)
+	{
+		printf("Matrix size exceeds the maximum allowed size.\n");
+		return 1; // Exit with an error code
+	}
 
-    // Input the initial guess vector
-    printf("Enter Initial Guess Vector:\n");
-    for (i = 1; i <= n; i++) {
-        printf("x=%d ", i);
-        scanf("%f", &x[i]);
-    }
+	// Input the matrix elements
+	printf("Enter Coefficient of Matrix:\n");
+	for (i = 0; i < n; i++)
+	{
+		for (j = 0; j < n; j++)
+		{
+			printf("a[%d][%d] = ", i, j);
+			scanf("%f", &a[i][j]);
+		}
+	}
 
-    // Input the tolerable error
-    printf("Enter Tolerable Error: ");
-    scanf("%f", &error);
+	// Input the initial guess vector
+	printf("Enter Initial Guess Vector:\n");
+	for (i = 0; i < n; i++)
+	{
+		printf("x[%d] = ", i);
+		scanf("%f", &x[i]);
+	}
 
-    while (fabs(lambda_new - lambda_old) > error) {
-        // Matrix-vector multiplication
-        for (i = 1; i <= n; i++) {
-            temp = 0.0;
-            for (j = 1; j <= n; j++) {
-                temp = temp + a[i][j] * x[j];
-            }
-            x_new[i] = temp;
-        }
+	// Input the tolerable error
+	printf("Enter Tolerable Error: ");
+	scanf("%f", &error);
 
-        // Finding largest element of x_new
-        lambda_new = fabs(x_new[1]);
-        for (i = 2; i <= n; i++) {
-            if (fabs(x_new[i]) > lambda_new) {
-                lambda_new = fabs(x_new[i]);
-            }
-        }
+	// Main loop for eigenvalue computation
+	for (step = 1; step <= MAX_ITERATIONS && fabs((lambda_new - lambda_old) / lambda_new) >= error; step++)
+	{
+		// Matrix-vector multiplication
+		for (i = 0; i < n; i++)
+		{
+			temp = 0.0;
+			largest_index = 0;
+			for (j = 0; j < n; j++)
+			{
+				temp += a[i][j] * x[j];
+				if (fabs(temp) > fabs(x_new[largest_index]))
+				{
+					largest_index = i;
+				}
+			}
+			x_new[i] = temp;
+		}
 
-        // Normalization
-        for (i = 1; i <= n; i++) {
-            x[i] = x_new[i] / lambda_new;
-        }
+		// Finding largest element of x_new
+		lambda_new = fabs(x_new[largest_index]);
 
-        // Display intermediate results
-        printf("\n\nSTEP-%d:\n", step);
-        printf("Eigen Value = %f\n", lambda_new);
-        printf("Eigen Vector: ");
-        for (i = 1; i <= n; i++) {
-            printf("%f ", x[i]);
-        }
+		// Normalization
+		for (i = 0; i < n; i++)
+		{
+			x[i] = x_new[i] / lambda_new;
+		}
 
-        lambda_old = lambda_new;
-        step++;
-    }
+		// Optional: Display intermediate results (uncommented)
+		printf("\n\nSTEP-%d:\n", step);
+		printf("Eigen Value = %f\n", lambda_new);
+		printf("Eigen Vector: ");
+		for (i = 0; i < n; i++)
+		{
+			printf("%f ", x[i]);
+		}
+		printf("\n");
 
-    // Display the final result
-    printf("\n\nThe required eigen value is %f", lambda_new);
-    printf("\n\nThe required eigen vector is:\n");
-    for (i = 1; i <= n; i++) {
-        printf("%f ", x[i]);
-    }
+		lambda_old = lambda_new;
+		step++;
+	}
 
-    return 0;
+	// Display the final result
+	printf("\n\nThe required eigen value is %f\n", lambda_new);
+	printf("\n\nThe required eigen vector is:\n");
+	for (i = 0; i < n; i++)
+	{
+		printf("%f ", x[i]);
+	}
+
+	return 0;
 }

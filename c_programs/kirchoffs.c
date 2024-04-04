@@ -88,9 +88,9 @@ void updateNodeProperties(Node *node, double newCapacitance, double newInductanc
 void addNodeToCircuit(Circuit *circuit)
 {
     // Allocate memory for the new node
-    Node *newNodes = realloc(circuit->nodes, (circuit->numNodes +  1) * sizeof(Node));
+    Node *newNodes = realloc(circuit->nodes, (circuit->numNodes + 1) * sizeof(Node));
     if (!newNodes) {
-        fprintf(stderr, "Memory allocation failed.\n");
+        fprintf(stderr, "Memory allocation failed for adding a node.\n");
         return;
     }
     circuit->nodes = newNodes;
