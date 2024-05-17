@@ -4,7 +4,7 @@
 		{
 			"label": "build",
 			"type": "shell",
-			"command": "gcc -g -o ${fileBasenameNoExtension} ${file} -Wall -Werror -Wextra -pedantic",
+			"command": "gcc -g -o ${fileBasenameNoExtension} ${file} -Wall -Werror -Wextra -pedantic -lm",
 			"group": "build"
 		},
 		{

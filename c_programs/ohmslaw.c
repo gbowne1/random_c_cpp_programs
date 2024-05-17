@@ -1,23 +1,37 @@
-// File:   ohmslaw.c
+// File: ohmslaw.c
 // Author: Gregory K. Bowne
 // Date:   10 MAY 2020
 // Time:   09:54:44
-// Brief:  This program calculates ohms law, becuase we can and we have the technology
+// Brief:  This program calculates voltage using Ohm's Law.
 
 #include <stdio.h>
 
-int main() {
-    float I, R, V;
+int main()
+{
+	// Declare variables for current, resistance, and voltage
+	float current, resistance, voltage;
 
-    printf("Enter the current (I) in amperes: ");
-    scanf("%f", &I);
+	// Prompt user to enter current in amperes
+	printf("Enter the current (I) in amperes: ");
+	if (scanf("%f", &current) != 1)
+	{ // Check for successful input
+		fprintf(stderr, "Error: Invalid input for current.\n");
+		return 1; // Indicate failure
+	}
 
-    printf("Enter the resistance (R) in ohms: ");
-    scanf("%f", &R);
+	// Prompt user to enter resistance in ohms
+	printf("Enter the resistance (R) in ohms: ");
+	if (scanf("%f", &resistance) != 1)
+	{ // Check for successful input
+		fprintf(stderr, "Error: Invalid input for resistance.\n");
+		return 1; // Indicate failure
+	}
 
-    V = I * R;
+	// Calculate voltage using Ohm's Law: V = I * R
+	voltage = current * resistance;
 
-    printf("The voltage (V) is %.2f volts.\n", V);
+	// Print the calculated voltage with two decimal places
+	printf("The voltage (V) is %.2f volts.\n", voltage);
 
-    return 0;
+	return 0; // Indicate successful execution
 }

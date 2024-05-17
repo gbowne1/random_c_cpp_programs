@@ -12,7 +12,7 @@
 // To compute barycentric coordinates for a point P with respect to a triangle (A, B, C), you can use the following method://
 // Compute the barycentric coordinates (u, v, w) for point P using the following formula:
 // This method computes the barycentric coordinates directly from the dot products of the vectors and the point, without the need for
-// intermediate calculations.
+// intermediate calculations or any specific algorithms.
 
 #include <assert.h>
 #include <math.h>
@@ -36,6 +36,13 @@ typedef struct
 	double d11;
 	double invDenom;
 } TriangleCache;
+
+typedef struct
+{
+	double u;
+	double v;
+	double w;
+} BarycentricCoordinates;
 
 double dotProduct(Point v1, Point v2)
 {
@@ -61,16 +68,19 @@ bool isTriangleDegenerate(Point A, Point B, Point C)
 TriangleCache cacheTriangle(Point A, Point B, Point C)
 {
 	TriangleCache cache;
-	cache.v0 = (Point){B.x - A.x, B.y - A.y, B.z - A.z};
-	cache.v1 = (Point){C.x - A.x, C.y - A.y, C.z - A.z};
+	cache.v0.x = B.x - A.x;
+	cache.v0.y = B.y - A.y;
+	cache.v0.z = B.z - A.z;
+	cache.v1.x = C.x - A.x;
+	cache.v1.y = C.y - A.y;
+	cache.v1.z = C.z - A.z;
 	cache.d00 = dotProduct(cache.v0, cache.v0);
 	cache.d01 = dotProduct(cache.v0, cache.v1);
 	cache.d11 = dotProduct(cache.v1, cache.v1);
 	double denom = cache.d00 * cache.d11 - cache.d01 * cache.d01;
-	// Check for division by zero
 	if (denom == 0)
 	{
-		printf("Error: Division by zero. The triangle is degenerate.\n");
+		printf("Error: Triangle is degenerate (area is zero). Points define a line or a point.\n");
 		exit(EXIT_FAILURE);
 	}
 	cache.invDenom = 1.0 / denom;
@@ -114,8 +124,8 @@ Point getPointInput(const char *prompt)
 void computeBarycentric(Point A, Point B, Point C, Point P, double d00, double d01, double d11)
 {
 	Point v2 = {P.x - A.x, P.y - A.y, P.z - A.z};
-	double d20 = dotProduct(v2, {B.x - A.x, B.y - A.y, B.z - A.z});
-	double d21 = dotProduct(v2, {C.x - A.x, C.y - A.y, C.z - A.z});
+	double d20 = dotProduct(v2, (Point){B.x - A.x, B.y - A.y, B.z - A.z});
+	double d21 = dotProduct(v2, (Point){C.x - A.x, C.y - A.y, C.z - A.z});
 	double denom = d00 * d11 - d01 * d01;
 	double u = (d11 * d20 - d01 * d21) / denom;
 	double w = (d00 * d21 - d01 * d20) / denom;
@@ -146,6 +156,15 @@ int main()
 	double d00 = dotProduct(v0, v0);
 	double d01 = dotProduct(v0, v1);
 	double d11 = dotProduct(v1, v1);
+
+	// Calculate barycentric coordinates within main
+    Point v2 = {P.x - A.x, P.y - A.y, P.z - A.z};
+    double d20 = dotProduct(v2, v0);
+    double d21 = dotProduct(v2, v1);
+    double denom = d00 * d11 - d01 * d01;
+    double u = (d11 * d20 - d01 * d21) / denom;
+    double w = (d00 * d21 - d01 * d20) / denom;
+    double v = 1 - u - w;
 
 	// Call computeBarycentric with pre-calculated values
 	computeBarycentric(A, B, C, P, d00, d01, d11);
