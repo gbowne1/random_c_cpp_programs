@@ -5,6 +5,14 @@
 // Brief:  This program calculates series and parallel resitance.
 
 #include <stdio.h>
+#include <math.h>
+//Function to calculate the max current flowing trough a resistor
+float calcMaxCurrent(float resistor, float wattage)
+{
+	float current = 0;
+	current = sqrt(wattage / resistor);
+	return current;
+}
 
 // Function to calculate total resistance in series
 float calcSeriesResistance(float resistors[], int count)
