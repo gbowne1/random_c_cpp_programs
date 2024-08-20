@@ -64,7 +64,16 @@ ResistorColors createResistorColors()
 
 	return rc;
 }
+double calculateMaxCurrent(double resistance)
+{
+	double wattage;
+	double current;
+	printf("%s", "please enter the wattage of the resistor...\n");
+	scanf_s("%lf", &wattage);
+	current = sqrt(wattage / resistance);
+	return current;
 
+}
 double calculateResistance(ResistorColors rc, char *colors[], int numBands)
 {
     double resistance = 0;
