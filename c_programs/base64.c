@@ -1,10 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #define BASE64_CHAR_COUNT 64
 #define BLOCK_SIZE 3
 #define PADDING_BYTE '='
+
+static const char base64_chars[] =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static const char padding_char = PADDING_BYTE;
 
 // Pre-calculate base64 character indices for faster lookup
 static int base64_index(char c) {
@@ -13,10 +18,6 @@ static int base64_index(char c) {
     indices[c] = strchr(base64_chars, c) - base64_chars;
     return indices[c];
 }
-
-static const char base64_chars[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-static const char padding_char = PADDING_BYTE;
 
 static char *base64_encode(const unsigned char *input, size_t length) {
     size_t output_length = 4 * ((length + 2) / 3);
