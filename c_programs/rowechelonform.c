@@ -7,121 +7,107 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void swapRows(float **M, int row1, int row2, int colCount)
-{
-	for (int j = 0; j < colCount; j++)
-	{
-		float temp = M[row1][j];
-		M[row1][j] = M[row2][j];
-		M[row2][j] = temp;
-	}
+// Function to swap two rows of the matrix
+void swapRows(float **matrix, int row1, int row2, int colCount) {
+    for (int col = 0; col < colCount; col++) {
+        float temp = matrix[row1][col];
+        matrix[row1][col] = matrix[row2][col];
+        matrix[row2][col] = temp;
+    }
 }
 
-void toRowEchelonForm(float **M, int rowCount, int colCount)
-{
-	int lead = 0;
-	for (int r = 0; r < rowCount; r++)
-	{
-		if (colCount <= lead)
-		{
-			return;
-		}
-		int i = r;
-		while (M[i][lead] == 0)
-		{
-			i++;
-			if (rowCount == i)
-			{
-				i = r;
-				lead++;
-				if (colCount == lead)
-				{
-					return;
-				}
-			}
-		}
-		for (int j = 0; j < colCount; j++)
-		{
-			float temp = M[r][j];
-			M[r][j] = M[i][j];
-			M[i][j] = temp;
-		}
-		float div = M[r][lead];
-
-		// Handle division by zero
-		if (div != 0)
-		{
-			for (int j = 0; j < colCount; j++)
-			{
-				M[r][j] /= div;
-			}
-		}
-		else
-		{
-			// Handle division by zero
-			for (int j = 0; j < colCount; j++)
-			{
-				M[r][j] = 0; // Set entire row to zero
-			}
-		}
-
-		for (int j = 0; j < rowCount; j++)
-		{
-			if (j != r)
-			{
-				float sub = M[j][lead];
-				for (int k = 0; k < colCount; k++)
-				{
-					M[j][k] -= (sub * M[r][k]);
-				}
-			}
-		}
-		lead++;
-	}
+// Function to convert matrix to row-echelon form
+void toRowEchelonForm(float **matrix, int rowCount, int colCount) {
+    int lead = 0;
+    for (int r = 0; r < rowCount; r++) {
+        if (lead >= colCount) return;
+        int i = r;
+        while (matrix[i][lead] == 0) {
+            i++;
+            if (i == rowCount) {
+                i = r;
+                lead++;
+                if (lead == colCount) return;
+            }
+        }
+        if (i != r) {
+            swapRows(matrix, r, i, colCount);
+        }
+        float leadValue = matrix[r][lead];
+        if (leadValue != 0) {
+            for (int col = 0; col < colCount; col++) {
+                matrix[r][col] /= leadValue;
+            }
+        }
+        for (int row = 0; row < rowCount; row++) {
+            if (row != r) {
+                float factor = matrix[row][lead];
+                for (int col = 0; col < colCount; col++) {
+                    matrix[row][col] -= factor * matrix[r][col];
+                }
+            }
+        }
+        lead++;
+    }
 }
 
-int main()
-{
-	int rowCount, colCount;
+// Function to deallocate the matrix
+void deallocateMatrix(float **matrix, int rowCount) {
+    for (int i = 0; i < rowCount; i++) {
+        free(matrix[i]);
+    }
+    free(matrix);
+}
 
-	// Read the matrix from the user
-	printf("Enter the number of rows and columns: ");
-	scanf("%d %d", &rowCount, &colCount);
+int main() {
+    int rowCount, colCount;
+    printf("Enter the number of rows and columns: ");
+    if (scanf("%d %d", &rowCount, &colCount) != 2 || rowCount <= 0 || colCount <= 0) {
+        fprintf(stderr, "Invalid input. Please enter positive integers for rows and columns.\n");
+        return EXIT_FAILURE;
+    }
 
-	float **M = (float **)malloc(rowCount * sizeof(float *));
-	for (int i = 0; i < rowCount; i++)
-	{
-		M[i] = (float *)malloc(colCount * sizeof(float));
-	}
+    // Allocate memory for the matrix
+    float **matrix = (float **)malloc(rowCount * sizeof(float *));
+    if (!matrix) {
+        fprintf(stderr, "Memory allocation failed.\n");
+        return EXIT_FAILURE;
+    }
+    for (int i = 0; i < rowCount; i++) {
+        matrix[i] = (float *)malloc(colCount * sizeof(float));
+        if (!matrix[i]) {
+            fprintf(stderr, "Memory allocation failed.\n");
+            deallocateMatrix(matrix, i);
+            return EXIT_FAILURE;
+        }
+    }
 
-	printf("Enter the elements of the matrix:\n");
-	for (int i = 0; i < rowCount; i++)
-	{
-		for (int j = 0; j < colCount; j++)
-		{
-			scanf("%f", &M[i][j]);
-		}
-	}
+    // Read matrix elements
+    printf("Enter the elements of the matrix:\n");
+    for (int i = 0; i < rowCount; i++) {
+        for (int j = 0; j < colCount; j++) {
+            if (scanf("%f", &matrix[i][j]) != 1) {
+                fprintf(stderr, "Invalid input. Please enter valid floating-point numbers.\n");
+                deallocateMatrix(matrix, rowCount);
+                return EXIT_FAILURE;
+            }
+        }
+    }
 
-	// Convert the matrix to row-echelon form
-	toRowEchelonForm(M, rowCount, colCount);
+    // Convert to row-echelon form
+    toRowEchelonForm(matrix, rowCount, colCount);
 
-	// Print the matrix in row-echelon form
-	printf("The matrix in row-echelon form is:\n");
-	for (int i = 0; i < rowCount; i++)
-	{
-		for (int j = 0; j < colCount; j++)
-		{
-			printf("%.2f\t", M[i][j]);
-		}
-		printf("\n");
-	}
+    // Print the matrix in row-echelon form
+    printf("The matrix in row-echelon form is:\n");
+    for (int i = 0; i < rowCount; i++) {
+        for (int j = 0; j < colCount; j++) {
+            printf("%.2f\t", matrix[i][j]);
+        }
+        printf("\n");
+    }
 
-	for (int i = 0; i < rowCount; i++)
-	{
-		free(M[i]);
-	}
-	free(M);
+    // Deallocate matrix
+    deallocateMatrix(matrix, rowCount);
 
-	return 0;
+    return EXIT_SUCCESS;
 }
