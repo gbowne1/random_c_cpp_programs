@@ -6,6 +6,8 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
+#include <string.h>
 
 #ifndef M_PI
 #define M_PI 3.141592653589793
@@ -28,12 +30,15 @@ double calculateRCtimeConstant(double resistance, double capacitance) {
 
 int main() {
     double resistance, capacitance;
+	char input[100];
 
     printf("Enter the resistance (R) in ohms: ");
-    scanf("%lf", &resistance);
+    fgets(input, sizeof(input), stdin);
+    resistance = strtod(input, NULL);
 
     printf("Enter the capacitance (C) in farads: ");
-    scanf("%lf", &capacitance);
+    fgets(input, sizeof(input), stdin);
+    capacitance = strtod(input, NULL);
 
     printf("The characteristic frequency (f) is %.2f Hz.\n", calculateCharacteristicFrequency(resistance, capacitance));
     printf("The capacitor charge time (tau) is %.2f seconds.\n", calculateCapacitorChargeTime(resistance, capacitance));

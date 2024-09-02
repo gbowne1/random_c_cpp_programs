@@ -1,7 +1,13 @@
-#include <iostream>
+// File:   winsize.cpp
+// Author: Gregory K. Bowne
+// Date:   06 Aug 2021
+// Time:   13:46:22
+// Brief:  This program calculates the console size
+
 #include <limits>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <iostream>
 
 #ifdef _WIN32
 #include <windows.h>

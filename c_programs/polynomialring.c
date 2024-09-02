@@ -2,7 +2,7 @@
 // Author: Gregory K. Bowne
 // Date:   12 SEP 1998
 // Time:   9:33:38
-// Brief:  The provided C program is designed to perform operations on polynomials represented as rings, specifically adding and multiplying two polynomials. Here's a description of the program and its components
+// Brief:  The provided C program is designed to perform operations on polynomials represented as rings, specifically adding and multiplying two polynomials. Here's a description of the program and its components. From an algorithmic perspective, the program is implementing a simple form of the distributive property of multiplication over addition for polynomials.
 
 #include <stdio.h>
 #include <stdlib.h>
