@@ -7,61 +7,126 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <limits.h>
+#include <stdbool.h>
 
-// Function to convert Celsius to Fahrenheit
-double celsiusToFahrenheit(double celsius) {
-    return (celsius * 9.0 / 5.0) + 32.0;
-}
+#define MAX_INPUT_LENGTH 100
+#define PRECISION 2
+#define KELVIN_OFFSET 273.15
 
-// Function to convert Fahrenheit to Celsius
-double fahrenheitToCelsius(double fahrenheit) {
-    return (fahrenheit - 32.0) * 5.0 / 9.0;
-}
+// Function prototypes
+void displayMenu(void);
+bool getValidChoice(int *choice);
+bool getValidTemperature(double *temp);
+void convertTemperature(int choice, double inputTemp);
+double celsiusToFahrenheit(double celsius);
+double fahrenheitToCelsius(double fahrenheit);
+double celsiusToKelvin(double celsius);
+double kelvinToCelsius(double kelvin);
+void clearInputBuffer(void);
 
-// Function to convert Celsius to Kelvin
-double celsiusToKelvin(double celsius) {
-    return celsius + 273.15;
-}
+int main(void) {
+    int choice;
+    double inputTemp;
+    bool continueProgram = true;
 
-// Function to convert Kelvin to Celsius
-double kelvinToCelsius(double kelvin) {
-    return kelvin - 273.15;
-}
+    while (continueProgram) {
+        displayMenu();
+        
+        if (!getValidChoice(&choice)) {
+            fprintf(stderr, "Invalid input. Exiting program.\n");
+            return EXIT_FAILURE;
+        }
 
-int main() {
-    double tempC, tempF, tempK;
-    char choice;
-
-    printf("Enter temperature in Celsius or Fahrenheit or Kelvin (C/F/K): ");
-    scanf(" %c", &choice);
-    choice = toupper(choice);
-
-    switch (choice) {
-        case 'C':
-            printf("Enter temperature in Celsius: ");
-            scanf("%lf", &tempC);
-            tempF = celsiusToFahrenheit(tempC);
-            tempK = celsiusToKelvin(tempC);
-            printf("%.2lf degrees Celsius is %.2lf degrees Fahrenheit, %.2lf degrees Kelvin.\n", tempC, tempF, tempK);
+        if (choice == 4) {
+            printf("Exiting program. Goodbye!\n");
             break;
-        case 'F':
-            printf("Enter temperature in Fahrenheit: ");
-            scanf("%lf", &tempF);
-            tempC = fahrenheitToCelsius(tempF);
-            tempK = celsiusToKelvin(fahrenheitToCelsius(tempF));
-            printf("%.2lf degrees Fahrenheit is %.2lf degrees Celsius, %.2lf degrees Kelvin.\n", tempF, tempC, tempK);
-            break;
-        case 'K':
-            printf("Enter temperature in Kelvin: ");
-            scanf("%lf", &tempK);
-            tempC = kelvinToCelsius(tempK);
-            tempF = celsiusToFahrenheit(kelvinToCelsius(tempK));
-            printf("%.2lf degrees Kelvin is %.2lf degrees Celsius, %.2lf degrees Fahrenheit.\n", tempK, tempC, tempF);
-            break;
-        default:
-            printf("Invalid choice!\n");
-            exit(EXIT_FAILURE);
+        }
+
+        printf("Enter temperature value: ");
+        if (!getValidTemperature(&inputTemp)) {
+            fprintf(stderr, "Invalid temperature input. Exiting program.\n");
+            return EXIT_FAILURE;
+        }
+
+        convertTemperature(choice, inputTemp);
+
+        printf("\nDo you want to perform another conversion? (y/n): ");
+        char response;
+        scanf(" %c", &response);
+        continueProgram = (response == 'y' || response == 'Y');
+        clearInputBuffer();
     }
 
     return EXIT_SUCCESS;
 }
+
+void displayMenu(void) {
+    printf("\nTemperature Conversion Menu\n");
+    printf("1. Convert Celsius to Fahrenheit and Kelvin\n");
+    printf("2. Convert Fahrenheit to Celsius and Kelvin\n");
+    printf("3. Convert Kelvin to Celsius and Fahrenheit\n");
+    printf("4. Exit\n");
+    printf("Enter your choice (1-4): ");
+}
+
+bool getValidChoice(int *choice) {
+    if (scanf("%d", choice) != 1) {
+        clearInputBuffer();
+        return false;
+    }
+    if (*choice < 1 || *choice > 4) {
+        printf("Invalid choice. Please enter a number between 1 and 4.\n");
+        return getValidChoice(choice);
+    }
+    return true;
+}
+
+bool getValidTemperature(double *temp) {
+    if (scanf("%lf", temp) != 1) {
+        clearInputBuffer();
+        return false;
+    }
+    return true;
+}
+
+void convertTemperature(int choice, double inputTemp) {
+    switch (choice) {
+        case 1:
+            printf("%.2f°C = %.2f°F, %.2f K\n", inputTemp, 
+                   celsiusToFahrenheit(inputTemp), celsiusToKelvin(inputTemp));
+            break;
+        case 2:
+            printf("%.2f°F = %.2f°C, %.2f K\n", inputTemp, 
+                   fahrenheitToCelsius(inputTemp), 
+                   celsiusToKelvin(fahrenheitToCelsius(inputTemp)));
+            break;
+        case 3:
+            printf("%.2f K = %.2f°C, %.2f°F\n", inputTemp, 
+                   kelvinToCelsius(inputTemp), 
+                   celsiusToFahrenheit(kelvinToCelsius(inputTemp)));
+            break;
+    }
+}
+
+double celsiusToFahrenheit(double celsius) {
+    return (celsius * 9.0 / 5.0) + 32.0;
+}
+
+double fahrenheitToCelsius(double fahrenheit) {
+    return (fahrenheit - 32.0) * 5.0 / 9.0;
+}
+
+double celsiusToKelvin(double celsius) {
+    return celsius + KELVIN_OFFSET;
+}
+
+double kelvinToCelsius(double kelvin) {
+    return kelvin - KELVIN_OFFSET;
+}
+
+void clearInputBuffer(void) {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) {}
+}
+

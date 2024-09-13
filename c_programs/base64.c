@@ -1,3 +1,8 @@
+// File:   base64.c
+// Author: Gregory K. Bowne
+// Date:   9 AUG 2024// Time:   1:31 
+// Brief:  This program does base64 with no particular algorythm
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,7 +18,7 @@ static const char padding_char = PADDING_BYTE;
 
 // Pre-calculate base64 character indices for faster lookup
 static int base64_index(char c) {
-    static int indices[BASE64_CHAR_COUNT];
+    static int32_t indices[BASE64_CHAR_COUNT];
     if (indices[c] != -1) return indices[c];
     indices[c] = strchr(base64_chars, c) - base64_chars;
     return indices[c];
