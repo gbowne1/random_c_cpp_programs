@@ -2,90 +2,254 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
-#include <variant>
 #include <vector>
 #include <sstream>
-#include <utility>
 #include <memory>
+#include <stdexcept>
 
-struct JSONNode;
+class JsonValue;
 
-// Define a simple JSONNode structure to hold JSON data
-struct JSONNode {
-    std::string key;
-    std::variant<int, float, bool, std::string, std::vector<JSONNode*>, std::unordered_map<std::string, JSONNode*>> value;
+using JsonObject = std::unordered_map<std::string, std::shared_ptr<JsonValue>>;
+using JsonArray = std::vector<std::shared_ptr<JsonValue>>;
+
+class JsonValue
+{
+public:
+    enum class Type
+    {
+        Null,
+        Boolean,
+        Number,
+        String,
+        Array,
+        Object
+    };
+
+    JsonValue() : type_(Type::Null) {}
+    explicit JsonValue(bool value) : type_(Type::Boolean), bool_(value) {}
+    explicit JsonValue(double value) : type_(Type::Number), number_(value) {}
+    explicit JsonValue(const std::string &value) : type_(Type::String), string_(value) {}
+    explicit JsonValue(JsonArray value) : type_(Type::Array), array_(std::move(value)) {}
+    explicit JsonValue(JsonObject value) : type_(Type::Object), object_(std::move(value)) {}
+
+    Type getType() const { return type_; }
+    bool getBool() const { return bool_; }
+    double getNumber() const { return number_; }
+    const std::string &getString() const { return string_; }
+    const JsonArray &getArray() const { return array_; }
+    const JsonObject &getObject() const { return object_; }
+
+private:
+    Type type_;
+    bool bool_;
+    double number_;
+    std::string string_;
+    JsonArray array_;
+    JsonObject object_;
 };
 
-// Define the JSON value types outside the struct
-using JSONArray = std::vector<JSONNode*>;
-using JSONObject = std::unordered_map<std::string, JSONNode*>;
-
-// Function declarations
-JSONArray parseArray(std::istringstream &_stream); // Prefix parameter with underscore
-std::variant<int, float, bool, std::string> parseValue(std::istringstream &_stream); // Prefix parameter with underscore
-JSONObject parseObject(std::istringstream &_stream); // Prefix parameter with underscore
-
-// Function to parse JSON data from a file
-std::vector<JSONNode> parseJSON(const std::string &filename) {
-    std::vector<JSONNode> jsonData;
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "Error opening file." << std::endl;
-        return jsonData;
+class JsonParser
+{
+public:
+    static std::shared_ptr<JsonValue> parse(const std::string &json)
+    {
+        std::istringstream is(json);
+        return parseValue(is);
     }
 
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    std::string content = buffer.str();
-    std::istringstream stream(content);
+private:
+    static std::shared_ptr<JsonValue> parseValue(std::istream &is)
+    {
+        char c;
+        is >> c;
 
-    // Implement the rest of the parseJSON function...
-    // For simplicity, assume the file contains a JSON object
-    JSONObject rootObject = parseObject(stream);
-    for (const auto &pair : rootObject) {
-    JSONNode node;
-    node.key = pair.first; // Correctly accessing the key
-    node.value = pair.second->value; // Correctly accessing the value using ->
-    jsonData.push_back(node);
-    }
-
-    return jsonData;
-}
-
-// Implementations of the other parsing functions
-JSONArray parseArray(std::istringstream &_stream) { // Prefix parameter with underscore
-    JSONArray array;
-    // Implement array parsing logic here
-    return array;
-}
-
-std::variant<int, float, bool, std::string> parseValue(std::istringstream &_stream) {
-    // Implement value parsing logic here
-    // For demonstration, let's pretend we parsed a string value
-    std::string parsedValue = "example";
-
-    // Correctly return the parsed string wrapped in a std::variant
-    return parsedValue; // This is now correct because parsedValue is of type std::string
-}
-
-JSONObject parseObject(std::istringstream &_stream) { // Prefix parameter with underscore
-    JSONObject object;
-    // Implement object parsing logic here
-    return object;
-}
-
-int main() {
-    std::vector<std::shared_ptr<JSONNode>> parsedData = parseJSON("data.json");
-    for (const auto &node : parsedData) {
-        std::cout << "Key: " << node->key << ", Value: ";
-        if (std::holds_alternative<std::string>(node->value)) {
-            std::cout << std::get<std::string>(node->value);
-        } else if (std::holds_alternative<JSONObject>(node->value)) {
-            std::cout << "{...}";
-        } else if (std::holds_alternative<JSONArray>(node->value)) {
-            std::cout << "[...]";
+        if (c == '{')
+            return std::make_shared<JsonValue>(parseObject(is));
+        if (c == '[')
+            return std::make_shared<JsonValue>(parseArray(is));
+        if (c == '"')
+            return std::make_shared<JsonValue>(parseString(is));
+        if (c == 't' || c == 'f')
+            return std::make_shared<JsonValue>(parseBoolean(is, c));
+        if (c == 'n')
+            return parseNull(is);
+        if (std::isdigit(c) || c == '-')
+        {
+            is.unget();
+            return std::make_shared<JsonValue>(parseNumber(is));
         }
-        std::cout << std::endl;
+
+        throw std::runtime_error("Unexpected character");
     }
+
+    static JsonObject parseObject(std::istream &is)
+    {
+        JsonObject obj;
+        char c;
+        is >> c;
+        if (c == '}')
+            return obj;
+        is.unget();
+
+        while (true)
+        {
+            auto key = parseString(is);
+            is >> c;
+            if (c != ':')
+                throw std::runtime_error("Expected ':'");
+            obj[key] = parseValue(is);
+
+            is >> c;
+            if (c == '}')
+                break;
+            if (c != ',')
+                throw std::runtime_error("Expected ',' or '}'");
+        }
+        return obj;
+    }
+
+    static JsonArray parseArray(std::istream &is)
+    {
+        JsonArray arr;
+        char c;
+        is >> c;
+        if (c == ']')
+            return arr;
+        is.unget();
+
+        while (true)
+        {
+            arr.push_back(parseValue(is));
+            is >> c;
+            if (c == ']')
+                break;
+            if (c != ',')
+                throw std::runtime_error("Expected ',' or ']'");
+        }
+        return arr;
+    }
+
+    static std::string parseString(std::istream &is)
+    {
+        std::string str;
+        char c;
+        while (is.get(c) && c != '"')
+        {
+            if (c == '\\')
+            {
+                is.get(c);
+                switch (c)
+                {
+                case '"':
+                case '\\':
+                case '/':
+                    str += c;
+                    break;
+                case 'b':
+                    str += '\b';
+                    break;
+                case 'f':
+                    str += '\f';
+                    break;
+                case 'n':
+                    str += '\n';
+                    break;
+                case 'r':
+                    str += '\r';
+                    break;
+                case 't':
+                    str += '\t';
+                    break;
+                default:
+                    throw std::runtime_error("Invalid escape sequence");
+                }
+            }
+            else
+            {
+                str += c;
+            }
+        }
+        return str;
+    }
+
+    static bool parseBoolean(std::istream &is, char first)
+    {
+        std::string rest(3, ' ');
+        is.read(&rest[0], 3);
+        if (first == 't' && rest == "rue")
+            return true;
+        if (first == 'f' && rest == "als")
+        {
+            is.get(); // consume 'e'
+            return false;
+        }
+        throw std::runtime_error("Invalid boolean value");
+    }
+
+    static std::shared_ptr<JsonValue> parseNull(std::istream &is)
+    {
+        std::string rest(3, ' ');
+        is.read(&rest[0], 3);
+        if (rest == "ull")
+            return std::make_shared<JsonValue>();
+        throw std::runtime_error("Invalid null value");
+    }
+
+    static double parseNumber(std::istream &is)
+    {
+        std::string numStr;
+        char c;
+        while (is.get(c) && (std::isdigit(c) || c == '.' || c == 'e' || c == 'E' || c == '+' || c == '-'))
+        {
+            numStr += c;
+        }
+        is.unget();
+        return std::stod(numStr);
+    }
+};
+
+// Example usage
+int main()
+{
+    std::string jsonStr = R"(
+        {
+            "name": "John Doe",
+            "age": 30,
+            "city": "New York",
+            "isStudent": false,
+            "grades": [85, 90, 78],
+            "address": {
+                "street": "123 Main St",
+                "zip": "10001"
+            }
+        }
+    )";
+
+    try
+    {
+        auto jsonValue = JsonParser::parse(jsonStr);
+        if (jsonValue->getType() == JsonValue::Type::Object)
+        {
+            const auto &obj = jsonValue->getObject();
+            std::cout << "Name: " << obj.at("name")->getString() << std::endl;
+            std::cout << "Age: " << obj.at("age")->getNumber() << std::endl;
+            std::cout << "Is Student: " << (obj.at("isStudent")->getBool() ? "Yes" : "No") << std::endl;
+
+            std::cout << "Grades: ";
+            for (const auto &grade : obj.at("grades")->getArray())
+            {
+                std::cout << grade->getNumber() << " ";
+            }
+            std::cout << std::endl;
+
+            const auto &address = obj.at("address")->getObject();
+            std::cout << "Street: " << address.at("street")->getString() << std::endl;
+        }
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "Error: " << e.what() << std::endl;
+    }
+
     return 0;
 }

@@ -1,12 +1,12 @@
 /*
-File:   orthagonmatrix.c
-Author: Gregory K. Bowne
-Date:   12 SEP  1998
-Time:   8:54:08
-Brief:  This program defines functions to transpose a matrix, multiply two matrices,
-and check if a matrix is an identity matrix. It uses these functions to determine if
-the given square matrix is orthogonal by checking if the product of the matrix and
-its transpose results in an identity matrix
+ *  File:   orthagonmatrix.c
+ *  Author: Gregory K. Bowne
+ *  Date:   12 SEP  1998
+ *  Time:   8:54:08
+ *  Brief:  This program defines functions to transpose a matrix, multiply two matrices,
+ *  and check if a matrix is an identity matrix. It uses these functions to determine if
+ *  the given square matrix is orthogonal by checking if the product of the matrix and
+ *  its transpose results in an identity matrix
 */
 
 #include <stdio.h>

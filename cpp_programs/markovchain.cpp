@@ -1,3 +1,11 @@
+// File:   markovchain.cpp
+// Author: Gregory K. Bowne
+// Date:   03 MAR 2023
+// Time:   01:43:10
+// Brief:  This program will help with Markov Chain. The algorithm implemented in this code is a discrete-time Markov chain simulation.
+// Specifically, it simulates a continuous-time Markov chain with a discretized time step.  The current implementation generates a new
+// random number for each state transition, which can be inefficient for long simulations.
+
 #include <iostream>
 #include <array>
 #include <random>

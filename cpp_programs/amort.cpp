@@ -8,10 +8,12 @@
 const int PRECISION = 2;
 
 // Function to validate and get input
-double getInput(const std::string& prompt) {
+double getInput(const std::string &prompt)
+{
     double value;
     std::cout << prompt;
-    while (!(std::cin >> value)) {
+    while (!(std::cin >> value))
+    {
         std::cout << "Invalid input. Please enter a valid number: ";
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -20,19 +22,22 @@ double getInput(const std::string& prompt) {
 }
 
 // Function to calculate monthly payment
-double calculateMonthlyPayment(double loanAmount, double monthlyRate, int numPayments) {
+double calculateMonthlyPayment(double loanAmount, double monthlyRate, int numPayments)
+{
     return (loanAmount * monthlyRate) / (1 - pow(1 + monthlyRate, -numPayments));
 }
 
 // Function to print amortization schedule
-void printAmortizationSchedule(double loanAmount, double monthlyRate, double monthlyPayment, int numPayments) {
+void printAmortizationSchedule(double loanAmount, double monthlyRate, double monthlyPayment, int numPayments)
+{
     double balance = loanAmount;
     std::cout << "\nAmortization Schedule:\n";
     std::cout << "---------------------------------------------------------\n";
     std::cout << "Payment\tPrincipal\tInterest\tRemaining Balance\n";
     std::cout << "---------------------------------------------------------\n";
 
-    for (int i = 1; i <= numPayments; ++i) {
+    for (int i = 1; i <= numPayments; ++i)
+    {
         double interest = balance * monthlyRate;
         double principal = monthlyPayment - interest;
         balance -= principal;
@@ -43,7 +48,8 @@ void printAmortizationSchedule(double loanAmount, double monthlyRate, double mon
     }
 }
 
-int main() {
+int main()
+{
     std::cout << std::fixed << std::setprecision(PRECISION);
 
     double loanAmount = getInput("Enter the loan amount: ");
@@ -51,9 +57,11 @@ int main() {
     int numPayments;
 
     // Validate number of payments
-    do {
+    do
+    {
         numPayments = static_cast<int>(getInput("Enter the number of monthly payments: "));
-        if (numPayments <= 0) {
+        if (numPayments <= 0)
+        {
             std::cout << "Number of payments must be a positive integer. Please try again.\n";
         }
     } while (numPayments <= 0);

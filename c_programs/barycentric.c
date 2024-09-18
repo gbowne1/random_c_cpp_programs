@@ -9,7 +9,8 @@
 // like Ceva's theorem, Routh's theorem, and Menelaus's theorem. In computer-aided design, they are useful for defining some kinds of Bézier
 // surfaces.
 //
-// To compute barycentric coordinates for a point P with respect to a triangle (A, B, C), you can use the following method://
+// To compute barycentric coordinates for a point P with respect to a triangle (A, B, C), you can use the following method
+//
 // Compute the barycentric coordinates (u, v, w) for point P using the following formula:
 // This method computes the barycentric coordinates directly from the dot products of the vectors and the point, without the need for
 // intermediate calculations or any specific algorithms.

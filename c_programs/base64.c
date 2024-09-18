@@ -1,7 +1,7 @@
 // File:   base64.c
 // Author: Gregory K. Bowne
 // Date:   9 AUG 2024// Time:   1:31 
-// Brief:  This program does base64 with no particular algorythm
+// Brief:  This program does base64 with no particular algorithm
 
 #include <stdio.h>
 #include <stdlib.h>
