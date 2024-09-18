@@ -2,7 +2,7 @@
 // Author: Gregory K. Bowne
 // Date:   11 MAY 2003
 // Time:   11:18:24
-// Brief:  This program uses the Gaussian elimination algorithm to  to convert a matrix to its row-echelon form
+// Brief:  This program uses the Gaussian elimination algorithm to convert a matrix to its row-echelon form
 
 #include <stdio.h>
 #include <stdlib.h>
