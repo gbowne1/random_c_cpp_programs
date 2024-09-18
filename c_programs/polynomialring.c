@@ -8,106 +8,111 @@
 #include <stdlib.h>
 
 // Structure to represent a term in a polynomial
-typedef struct
+typedef struct Term
 {
 	int coefficient;
 	int exponent;
 } Term;
 
 // Structure to represent a polynomial
-typedef struct
+typedef struct Polynomial
 {
+	int degree;
+	int capacity;
 	int num_terms;
 	Term *terms; // Dynamic array of terms
 } Polynomial;
 
-Polynomial *createPolynomial(int num_terms)
-{
-	Polynomial *poly = (Polynomial *)malloc(sizeof(Polynomial));
-	if (!poly)
-	{
-		perror("Memory allocation failed for Polynomial");
-		free(poly);
-		exit(EXIT_FAILURE);
-	}
-	poly->num_terms = num_terms;
-	poly->terms = (Term *)malloc(num_terms * sizeof(Term));
-	if (!poly->terms)
-	{
-		perror("Memory allocation failed for Polynomial terms");
-		exit(EXIT_FAILURE);
-	}
-	return poly;
+Polynomial *createPolynomial(int num_terms) {
+    Polynomial *poly = malloc(sizeof(Polynomial));
+    if (!poly) {
+        perror("Memory allocation failed for Polynomial");
+        return NULL;
+    }
+    
+    poly->num_terms = num_terms;
+    poly->terms = malloc(num_terms * sizeof(Term));
+    if (!poly->terms) {
+        perror("Memory allocation failed for Polynomial terms");
+        free(poly);
+        return NULL;
+    }
+    
+    return poly;
 }
 
-void freePolynomial(Polynomial **poly)
-{
-	if (poly && *poly)
-	{
-		free((*poly)->terms);
-		free(*poly);
-		*poly = NULL; // Set the pointer to NULL to prevent dangling pointers
-	}
+
+void freePolynomial(Polynomial *poly) {
+    if (poly) {
+        free(poly->terms);
+        free(poly);
+    }
 }
 
 // Function to add two polynomials
-Polynomial *addPolynomials(Polynomial *poly1, Polynomial *poly2)
-{
-	Polynomial *result = (Polynomial *)malloc(sizeof(Polynomial));
-	if (!result)
-	{
-		perror("Memory allocation failed for result Polynomial");
-		exit(EXIT_FAILURE);
-	}
-	result->num_terms = 0; // Initialize num_terms of the dynamically allocated result
+Polynomial *addPolynomials(Polynomial *poly1, Polynomial *poly2) {
+    int total_terms = poly1->num_terms + poly2->num_terms;
+    
+    Polynomial *result = createPolynomial(total_terms);
+    if (!result) {
+        perror("Memory allocation failed for result Polynomial");
+        return NULL;
+    }
 
-	// Allocate memory for result->terms to store the sum of terms
-	result->terms = (Term *)malloc((poly1->num_terms + poly2->num_terms) * sizeof(Term));
-	if (!result->terms)
-	{
-		perror("Memory allocation failed for result Polynomial terms");
-		exit(EXIT_FAILURE);
-	}
+    int i = 0, j = 0, k = 0;
 
-	return result;
+    while (i < poly1->num_terms && j < poly2->num_terms) {
+        if (poly1->terms[i].exponent > poly2->terms[j].exponent) {
+            result->terms[k++] = poly1->terms[i++];
+        } else if (poly1->terms[i].exponent < poly2->terms[j].exponent) {
+            result->terms[k++] = poly2->terms[j++];
+        } else {
+            result->terms[k].coefficient = poly1->terms[i].coefficient + poly2->terms[j].coefficient;
+            if (result->terms[k].coefficient != 0) {
+                k++;
+            }
+            i++;
+            j++;
+        }
+    }
+
+    while (i < poly1->num_terms) result->terms[k++] = poly1->terms[i++];
+    while (j < poly2->num_terms) result->terms[k++] = poly2->terms[j++];
+
+    result->num_terms = k;
+    return result;
 }
 
+
 // Function to multiply two polynomials
-Polynomial *multiplyPolynomials(Polynomial *poly1, Polynomial *poly2)
-{
-	Polynomial *result = (Polynomial *)malloc(sizeof(Polynomial));
-	if (!result)
-	{
-		perror("Memory allocation failed for result Polynomial");
-		exit(EXIT_FAILURE);
-	}
-	result->num_terms = 0; // Initialize num_terms of the dynamically allocated result
+Polynomial* multiplyPolynomials(Polynomial* poly1, Polynomial* poly2) {
+    Polynomial* result = createPolynomial(poly1->degree + poly2->degree);
+    if (!result) {
+        return NULL;
+    }
 
-	for (int i = 0; i < poly1->num_terms; i++) // Adjusted to use -> to access members of the Polynomial pointers
-	{
-		for (int j = 0; j < poly2->num_terms; j++) // Adjusted to use -> to access members of the Polynomial pointers
-		{
-			Term term;
-			term.coefficient = poly1->terms[i].coefficient * poly2->terms[j].coefficient;
-			term.exponent = poly1->terms[i].exponent + poly2->terms[j].exponent;
+    for (int i = 0; i < poly1->degree; i++) {
+        for (int j = 0; j < poly2->degree; j++) {
+            Term term;
+            term.coefficient = poly1->terms[i].coefficient * poly2->terms[j].coefficient;
+            term.exponent = poly1->terms[i].exponent + poly2->terms[j].exponent;
 
-			int k;
-			for (k = 0; k < result->num_terms; k++) // Adjusted to use -> to access members of the result pointer
-			{
-				if (term.exponent == result->terms[k].exponent) // Adjusted to use -> to access members of the result pointer
-				{
-					result->terms[k].coefficient += term.coefficient; // Adjusted to use -> to access members of the result pointer
-					break;
-				}
-			}
-			if (k == result->num_terms)
-			{
-				result->terms[result->num_terms++] = term; // Adjusted to use -> to access members of the result pointer
-			}
-		}
-	}
+            addTerm(result, &term);
+        }
+    }
 
-	return result;
+    return result;
+}
+
+void addTerm(Polynomial* poly, Term* term) {
+    int index = poly->degree;
+    while (index > 0 && poly->terms[index-1].exponent >= term->exponent) {
+        index--;
+    }
+
+    memmove(&poly->terms[index+1], &poly->terms[index], (poly->degree-index)*sizeof(Term));
+    poly->terms[index] = *term;
+    poly->degree++;
 }
 
 int main()
