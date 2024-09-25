@@ -7,21 +7,23 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #define BASE64_CHAR_COUNT 64
 #define BLOCK_SIZE 3
-#define PADDING_BYTE '='
+#define PADDING_CHAR '='
 
 static const char base64_chars[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-static const char padding_char = PADDING_BYTE;
+
+static int8_t base64_index[256];
 
 // Pre-calculate base64 character indices for faster lookup
-static int base64_index(char c) {
-    static int32_t indices[BASE64_CHAR_COUNT];
-    if (indices[c] != -1) return indices[c];
-    indices[c] = strchr(base64_chars, c) - base64_chars;
-    return indices[c];
+static void init_base64_index() {
+    memset(base64_index, -1, sizeof(base64_index));
+    for (int i = 0; i < BASE64_CHAR_COUNT; i++) {
+        base64_index[(unsigned char)base64_chars[i]] = i;
+    }
 }
 
 static char *base64_encode(const unsigned char *input, size_t length) {
@@ -42,8 +44,8 @@ static char *base64_encode(const unsigned char *input, size_t length) {
         encoded[j++] = base64_chars[triple & 0x3F];
     }
 
-    for (size_t i = 0; i < (BLOCK_SIZE - length % BLOCK_SIZE); i++)
-        encoded[output_length - 1 - i] = padding_char;
+    for (size_t i = 0; i < (3 - length % 3) % 3; i++)
+        encoded[output_length - 1 - i] = PADDING_CHAR;
 
     encoded[output_length] = '\0';
     return encoded;
@@ -51,20 +53,27 @@ static char *base64_encode(const unsigned char *input, size_t length) {
 
 static unsigned char *base64_decode(const char *input, size_t *output_length) {
     size_t input_length = strlen(input);
-    if (input_length % 4 != 0 || strchr(input, padding_char) > 0) return NULL;
+    if (input_length % 4 != 0) return NULL;
 
     *output_length = input_length / 4 * 3;
-    if (input[input_length - 1] == padding_char) (*output_length)--;
-    if (input[input_length - 2] == padding_char) (*output_length)--;
+    if (input[input_length - 1] == PADDING_CHAR) (*output_length)--;
+    if (input[input_length - 2] == PADDING_CHAR) (*output_length)--;
 
     unsigned char *decoded = malloc(*output_length);
     if (!decoded) return NULL;
 
     for (size_t i = 0, j = 0; i < input_length;) {
-        uint32_t sextet_a = input[i] == padding_char ? 0 : base64_index(input[i++]);
-        uint32_t sextet_b = input[i] == padding_char ? 0 : base64_index(input[i++]);
-        uint32_t sextet_c = input[i] == padding_char ? 0 : base64_index(input[i++]);
-        uint32_t sextet_d = input[i] == padding_char ? 0 : base64_index(input[i++]);
+        int sextet_a = base64_index[(unsigned char)input[i++]];
+        int sextet_b = base64_index[(unsigned char)input[i++]];
+        int sextet_c = (i < input_length) ? base64_index[(unsigned char)input[i++]] : 0;
+        int sextet_d = (i < input_length) ? base64_index[(unsigned char)input[i++]] : 0;
+
+        if (sextet_a == -1 || sextet_b == -1 || 
+            (sextet_c == -1 && input[i-1] != PADDING_CHAR) || 
+            (sextet_d == -1 && input[i-1] != PADDING_CHAR)) {
+            free(decoded);
+            return NULL;
+        }
 
         uint32_t triple = (sextet_a << 18) + (sextet_b << 12) + (sextet_c << 6) + sextet_d;
 
@@ -77,12 +86,22 @@ static unsigned char *base64_decode(const char *input, size_t *output_length) {
 }
 
 int main() {
+    init_base64_index();
     const char *original = "Hello, Base64!";
     char *encoded = base64_encode((const unsigned char *)original, strlen(original));
+    if (!encoded) {
+        fprintf(stderr, "Failed to encode\n");
+        return 1;
+    }
     printf("Encoded: %s\n", encoded);
 
     size_t decoded_length;
     unsigned char *decoded = base64_decode(encoded, &decoded_length);
+    if (!decoded) {
+        fprintf(stderr, "Failed to decode\n");
+        free(encoded);
+        return 1;
+    }
     printf("Decoded: %.*s\n", (int)decoded_length, decoded);
 
     free(encoded);
