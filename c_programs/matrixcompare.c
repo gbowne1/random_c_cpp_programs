@@ -9,155 +9,140 @@ bool doMatricesCommute(int n, float a[n][n], float b[n][n]);
 void addMatrices(int n, float a[n][n], float b[n][n], float result[n][n]);
 bool compareMatrices(int n, float a[n][n], float b[n][n]);
 float determinant(int n, float a[n][n]);
+void getCofactor(int n, float a[n][n], float temp[n][n], int p, int q);
 
-void initializeIdentityMatrix(int n, float identity[n][n])
-{
-	for (int i = 0; i < n; i++)
-	{
-		for (int j = 0; j < n; j++)
-		{
-			if (i == j)
-			{
-				identity[i][j] = 1.0;
-			}
-			else
-			{
-				identity[i][j] = 0.0;
-			}
-		}
-	};
-}
-// Function to calculate the inverse of a matrix
-void inverseMatrix(int n, float a[n][n], float inverse[n][n])
-{
-	float det = determinant(n, a);
-	if (det == 0)
-	{
-		printf("Matrix is singular and cannot be inverted.\n");
-		return;
-	}
+float determinant(int n, float a[n][n]) {
+    if (n == 1) {
+        return a[0][0];
+    }
 
-	float *adjugate = (float *)malloc(n * n * sizeof(float));
-	if (adjugate == NULL)
-	{
-		printf("Memory allocation failed.\n");
-		return;
-	}
+    float det = 0.0;
+    float temp[n][n];
+    int sign = 1;
 
-	// Initialize adjugate using the allocated memory
-	// Fill adjugate with values
+    for (int f = 0; f < n; f++) {
+        getCofactor(n, a, temp, 0, f);
+        det += sign * a[0][f] * determinant(n - 1, temp);
+        sign = -sign;
+    }
 
-	for (int i = 0; i < n; i++)
-	{
-		for (int j = 0; j < n; j++)
-		{
-			inverse[i][j] = adjugate[i * n + j] / det;
-		}
-	}
-
-	free(adjugate);
+    return det;
 }
 
-// Function to check if two matrices commute
-bool doMatricesCommute(int n, float a[n][n], float b[n][n])
-{
-	float ab[n][n], ba[n][n];
-	float result_ab[n][n], result_ba[n][n];
-
-	// Multiply A * B
-	for (int i = 0; i < n; i++)
-	{
-		for (int j = 0; j < n; j++)
-		{
-			result_ab[i][j] = 0;
-			for (int k = 0; k < n; k++)
-			{
-				result_ab[i][j] += a[i][k] * b[k][j];
-			}
-		}
-	}
-
-	// Multiply B * A
-	for (int i = 0; i < n; i++)
-	{
-		for (int j = 0; j < n; j++)
-		{
-			result_ba[i][j] = 0;
-			for (int k = 0; k < n; k++)
-			{
-				result_ba[i][j] += b[i][k] * a[k][j];
-			}
-		}
-	}
-
-	return compareMatrices(n, result_ab, result_ba);
+void getCofactor(int n, float a[n][n], float temp[n][n], int p, int q) {
+    int i = 0, j = 0;
+    for (int row = 0; row < n; row++) {
+        for (int col = 0; col < n; col++) {
+            if (row != p && col != q) {
+                temp[i][j++] = a[row][col];
+                if (j == n - 1) {
+                    j = 0;
+                    i++;
+                }
+            }
+        }
+    }
 }
 
-// Function to add two matrices
-void addMatrices(int n, float a[n][n], float b[n][n], float result[n][n])
-{
-	for (int i = 0; i < n; i++)
-	{
-		for (int j = 0; j < n; j++)
-		{
-			result[i][j] = a[i][j] + b[i][j];
-		}
-	}
+void inverseMatrix(int n, float a[n][n], float inverse[n][n]) {
+    float det = determinant(n, a);
+    if (det == 0) {
+        printf("Matrix is singular and cannot be inverted.\n");
+        return;
+    }
+
+    float adjugate[n][n];
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            float temp[n][n];
+            getCofactor(n, a, temp, i, j);
+            int sign = ((i + j) % 2 == 0) ? 1 : -1;
+            adjugate[j][i] = sign * determinant(n - 1, temp);
+        }
+    }
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            inverse[i][j] = adjugate[i][j] / det;
+        }
+    }
 }
 
-// Function to compare two matrices
-bool compareMatrices(int n, float a[n][n], float b[n][n])
-{
-	for (int i = 0; i < n; i++)
-	{
-		for (int j = 0; j < n; j++)
-		{
-			if (a[i][j] != b[i][j])
-			{
-				return false;
-			}
-		}
-	}
-	return true;
+bool doMatricesCommute(int n, float a[n][n], float b[n][n]) {
+    float result_ab[n][n], result_ba[n][n];
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            result_ab[i][j] = 0;
+            for (int k = 0; k < n; k++) {
+                result_ab[i][j] += a[i][k] * b[k][j];
+            }
+        }
+    }
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            result_ba[i][j] = 0;
+            for (int k = 0; k < n; k++) {
+                result_ba[i][j] += b[i][k] * a[k][j];
+            }
+        }
+    }
+
+    return compareMatrices(n, result_ab, result_ba);
 }
 
-int main()
-{
-	const int n = 3; // Example size of the matrix
-	float a[n][n];	 // Placeholder for matrix A
-	float b[n][n];	 // Placeholder for matrix B
-	float a_inv[n][n], b_inv[n][n], sum_inv[n][n], sum[n][n], inv_sum[n][n];
+void addMatrices(int n, float a[n][n], float b[n][n], float result[n][n]) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            result[i][j] = a[i][j] + b[i][j];
+        }
+    }
+}
 
-	// Assume matrices a and b are filled with values here
+bool compareMatrices(int n, float a[n][n], float b[n][n]) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (a[i][j] != b[i][j]) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
 
-	// Calculate inverses of A and B
-	inverseMatrix(n, a, a_inv);
-	inverseMatrix(n, b, b_inv);
+int main() {
+    const int n = 3;
+    float a[3][3] = {
+        {2, -1, 0},
+        {1, 2, 1},
+        {1, -1, 2}
+    };
+    float b[3][3] = {
+        {3, 0, 2},
+        {0, 1, -1},
+        {1, 1, 0}
+    };
 
-	// Check if A and B commute
-	if (doMatricesCommute(n, a, b))
-	{
-		// Add the inverses of A and B
-		addMatrices(n, a_inv, b_inv, sum_inv);
+    float a_inv[n][n], b_inv[n][n], sum_inv[n][n], sum[n][n], inv_sum[n][n];
 
-		// Add A and B, and then calculate the inverse of the sum
-		addMatrices(n, a, b, sum);
-		inverseMatrix(n, sum, inv_sum);
+    inverseMatrix(n, a, a_inv);
+    inverseMatrix(n, b, b_inv);
 
-		// Check if the sum of inverses is equal to the inverse of the sum
-		if (compareMatrices(n, sum_inv, inv_sum))
-		{
-			printf("The matrices satisfy the condition.\n");
-		}
-		else
-		{
-			printf("The matrices do not satisfy the condition.\n");
-		}
-	}
-	else
-	{
-		printf("Matrices A and B do not commute and therefore do not satisfy the condition.\n");
-	}
+    if (doMatricesCommute(n, a, b)) {
+        addMatrices(n, a_inv, b_inv, sum_inv);
+        addMatrices(n, a, b, sum);
+        inverseMatrix(n, sum, inv_sum);
 
-	return 0;
+        if (compareMatrices(n, sum_inv, inv_sum)) {
+            printf("The matrices satisfy the condition.\n");
+        } else {
+            printf("The matrices do not satisfy the condition.\n");
+        }
+    } else {
+        printf("Matrices A and B do not commute and therefore do not satisfy the condition.\n");
+    }
+
+    return 0;
 }
