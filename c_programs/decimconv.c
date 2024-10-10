@@ -7,8 +7,12 @@ char* decimalToBinary(int decimal) {
         return strdup("0");
     }
 
-    int size = sizeof(int) * 8;
+    int size = sizeof(long long) * 8;
     char* binary = malloc(size + 1);
+    if (binary == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(1);
+    }
     int index = 0;
 
     while (decimal > 0) {
@@ -29,9 +33,9 @@ char* decimalToBinary(int decimal) {
 }
 
 int main() {
-    int decimal;
+    long long decimal;
     printf("Enter a decimal number: ");
-    scanf("%d", &decimal);
+    scanf("%lld", &decimal);
 
     char* binary = decimalToBinary(decimal);
     printf("Binary representation: %s\n", binary);
