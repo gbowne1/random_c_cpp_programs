@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include <errno.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -17,17 +18,25 @@
 #include <unistd.h>
 #include <sys/select.h>
 #include <termios.h>
+#include <fcntl.h>
 #endif
 
 #define TIMER_DURATION 60 /* Timer duration in seconds */
+#define MIN_GMT_OFFSET -12
 #define MAX_GMT_OFFSET 14
-#define MIN_GMT_OFFSET -
 #define MAX_FORMAT 3
 
-int gmt_offset = 0;
-int dst_active = 0;
-int time_format = 0;
-int hour_format = 24;
+static int gmt_offset = 0;
+static int dst_active = 0;
+static int time_format = 0;
+static int hour_format = 24;
+
+typedef enum {
+    TIMER,
+    STOPWATCH,
+    CLOCK,
+    EXIT
+} Mode;
 
 /* Function prototypes */
 void clearScreen(void);
@@ -55,21 +64,22 @@ int main(void) {
         scanf("%d", &choice);
 
         switch (choice) {
-            case 1:
-                runTimer();
-                break;
-            case 2:
-                runStopwatch();
-                break;
-            case 3:
-                runClock();
-                break;
-            case 4:
-                printf("Exiting...\n");
-                break;
-            default:
-                printf("Invalid choice. Please try again.\n");
-        }
+        case 1:
+            runTimer();
+            break;
+        case 2:
+            runStopwatch();
+            break;
+        case 3:
+            runClock();
+            break;
+        case 4:
+            printf("Exiting...\n");
+            break;
+        default:
+            printf("Invalid choice. Please try again.\n");
+            break; // Add this line
+    }
     } while (choice != 3);
 
     return 0;
@@ -108,22 +118,19 @@ void disableBuffering(void) {
 void enableBuffering(void) {
     #ifndef _WIN32
     struct termios term;
-    tcgetattr(0, &term);
-    term.c_lflag |= ICANON;
-    term.c_lflag |= ECHO;
-    tcsetattr(0, TCSANOW, &term);
+    tcgetattr(STDIN_FILENO, &term);
+    term.c_lflag |= ICANON | ECHO;
+    tcsetattr(STDIN_FILENO, TCSANOW, &term);
     #endif
 }
 
 void displayTime(int seconds) {
-    int hours, minutes;
-    
-    hours = seconds / 3600;
-    seconds %= 3600;
-    minutes = seconds / 60;
-    seconds %= 60;
+   int hours = seconds / 3600;
+    int remainder = seconds % 3600;
+    int minutes = remainder / 60;
+    int remaining_seconds = remainder % 60;
 
-    printf("%02d:%02d:%02d", hours, minutes, seconds);
+    printf("%02d:%02d:%02d", hours, minutes, remaining_seconds);
 }
 
 #ifdef _WIN32
@@ -237,11 +244,17 @@ void runStopwatch(void) {
 }
 
 void setGMTOffset(void) {
-    printf("Enter GMT offset (-12 to +14): ");
-    scanf("%d", &gmt_offset);
-    if (gmt_offset < MIN_GMT_OFFSET || gmt_offset > MAX_GMT_OFFSET) {
-        printf("Invalid GMT offset. Setting to 0.\n");
-        gmt_offset = 0;
+    int new_offset;
+    while (1) {
+        printf("Enter GMT offset (-12 to +14): ");
+        if (scanf("%d", &new_offset) == 1 && new_offset >= MIN_GMT_OFFSET && new_offset <= MAX_GMT_OFFSET) {
+            gmt_offset = new_offset;
+            break;
+        } else {
+            fprintf(stderr, "Invalid input. Please try again.\n");
+            // Clear the input buffer
+            while (getchar() != '\n');
+        }
     }
 }
 
@@ -260,34 +273,17 @@ void toggleHourFormat(void) {
     printf("Switched to %d-hour format.\n", hour_format);
 }
 
-void formatTime(char *buffer, size_t bufferSize, const struct tm *timeInfo) {
-    char format[64];
-    char hourFormat[8] = "%H";
-    
-    if (hour_format == 12) {
-        strcpy(hourFormat, "%I");
-    }
+void formatTime(char *buffer, size_t bufferSize, const struct tm *time_info) {
+    static const char *formats[] = {"%Y-%m-%d ", "%d/%m/%Y ", "%m/%d/%Y ", "%a, %d %b %Y "};
+    static const char *hour_formats[] = {"%H", "%I"};
 
-    switch (time_format) {
-        case 0:
-            snprintf(format, sizeof(format), "%%Y-%%m-%%d %s:%%M:%%S", hourFormat);
-            break;
-        case 1:
-            snprintf(format, sizeof(format), "%%d/%%m/%%Y %s:%%M:%%S", hourFormat);
-            break;
-        case 2:
-            snprintf(format, sizeof(format), "%%m/%%d/%%Y %s:%%M:%%S", hourFormat);
-            break;
-        case 3:
-            snprintf(format, sizeof(format), "%%a, %%d %%b %%Y %s:%%M:%%S", hourFormat);
-            break;
-    }
-
-    strftime(buffer, bufferSize, format, timeInfo);
+    snprintf(buffer, bufferSize, formats[time_format], hour_format == 12 ? hour_formats[1] : hour_formats[0]);
 
     if (hour_format == 12) {
-        size_t len = strlen(buffer);
-        snprintf(buffer + len, bufferSize - len, " %s", (timeInfo->tm_hour >= 12) ? "PM" : "AM");
+        strftime(buffer + strlen(buffer), bufferSize - strlen(buffer), hour_formats[0], time_info);
+        snprintf(buffer + strlen(buffer), bufferSize - strlen(buffer), time_info->tm_hour >= 12 ? " PM" : " AM");
+    } else {
+        strftime(buffer + strlen(buffer), bufferSize - strlen(buffer), hour_formats[0], time_info);
     }
 }
 
