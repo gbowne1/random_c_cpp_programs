@@ -26,19 +26,26 @@
 #define MAX_GMT_OFFSET 14
 #define MAX_FORMAT 3
 
-static int gmt_offset = 0;
-static int dst_active = 0;
+const int SECONDS_IN_A_MINUTE = 60;
+const int SECONDS_IN_AN_HOUR = 3600;
+const int DAYS_IN_A_YEAR = 365;
+const int DAYS_IN_A_MONTH = 30; // Approximation
+const int DAYS_IN_A_WEEK = 7;
+
 static int time_format = 0;
-static int hour_format = 24;
+static int hour_format = 24; 
 
-typedef enum {
-    TIMER,
-    STOPWATCH,
-    CLOCK,
-    EXIT
-} Mode;
+// Global settings
+typedef struct {
+    int gmt_offset;
+    int dst_active;
+    int time_format;
+    int hour_format;
+} TimeSettings;
 
-/* Function prototypes */
+static TimeSettings settings = {0, 0, 0, 24};
+
+// Function prototypes
 void clearScreen(void);
 int kbhit(void);
 void disableBuffering(void);
@@ -47,6 +54,14 @@ void displayTime(int seconds);
 void runTimer(void);
 void runStopwatch(void);
 void runClock(void);
+void decipherUnixTimestamp(void);
+void convertSeconds(void);
+void setGMTOffset(void);
+void toggleDST(void);
+void toggleTimeFormat(void);
+void toggleHourFormat(void);
+void formatTime(char *buffer, size_t bufferSize, const struct tm *time_info);
+
 #ifdef _WIN32
 LARGE_INTEGER getFILETIMEoffset(void);
 double getElapsedTime(LARGE_INTEGER *start, LARGE_INTEGER *end);
@@ -55,34 +70,28 @@ double getElapsedTime(LARGE_INTEGER *start, LARGE_INTEGER *end);
 int main(void) {
     int choice;
 
-    do {
-        printf("1. Timer\n");
-        printf("2. Stopwatch\n");
-        printf("3. Clock\n");
-        printf("4. Exit\n");
+    while (1) {
+        printf("1. Timer\n2. Stopwatch\n3. Clock\n4. Decipher Unix Timestamp\n5. Convert Seconds\n6. Exit\n");
         printf("Enter your choice: ");
-        scanf("%d", &choice);
+        if (scanf("%d", &choice) != 1) {
+            fprintf(stderr, "Invalid input.\n");
+            while (getchar() != '\n'); // Clear the input buffer
+            continue;
+        }
 
         switch (choice) {
-        case 1:
-            runTimer();
-            break;
-        case 2:
-            runStopwatch();
-            break;
-        case 3:
-            runClock();
-            break;
-        case 4:
-            printf("Exiting...\n");
-            break;
-        default:
-            printf("Invalid choice. Please try again.\n");
-            break; // Add this line
+            case 1: runTimer(); break;
+            case 2: runStopwatch(); break;
+            case 3: runClock(); break;
+            case 4: decipherUnixTimestamp(); break;
+            case 5: convertSeconds(); break;
+            case 6: 
+                printf("Exiting...\n"); 
+                return 0;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
     }
-    } while (choice != 3);
-
-    return 0;
 }
 
 void clearScreen(void) {
@@ -125,10 +134,10 @@ void enableBuffering(void) {
 }
 
 void displayTime(int seconds) {
-   int hours = seconds / 3600;
-    int remainder = seconds % 3600;
-    int minutes = remainder / 60;
-    int remaining_seconds = remainder % 60;
+    int hours = seconds / SECONDS_IN_AN_HOUR;
+    int remainder = seconds % SECONDS_IN_AN_HOUR;
+    int minutes = remainder / SECONDS_IN_A_MINUTE;
+    int remaining_seconds = remainder % SECONDS_IN_A_MINUTE;
 
     printf("%02d:%02d:%02d", hours, minutes, remaining_seconds);
 }
@@ -248,43 +257,98 @@ void setGMTOffset(void) {
     while (1) {
         printf("Enter GMT offset (-12 to +14): ");
         if (scanf("%d", &new_offset) == 1 && new_offset >= MIN_GMT_OFFSET && new_offset <= MAX_GMT_OFFSET) {
-            gmt_offset = new_offset;
+            settings.gmt_offset = new_offset;
             break;
         } else {
             fprintf(stderr, "Invalid input. Please try again.\n");
-            // Clear the input buffer
-            while (getchar() != '\n');
+            while (getchar() != '\n'); // Clear the input buffer
         }
     }
 }
 
 void toggleDST(void) {
-    dst_active = !dst_active;
-    printf("Daylight Saving Time is now %s\n", dst_active ? "ON" : "OFF");
+    settings.dst_active = !settings.dst_active;
+    printf("Daylight Saving Time is now %s\n", settings.dst_active ? "ON" : "OFF");
 }
 
 void toggleTimeFormat(void) {
-    time_format = (time_format + 1) % (MAX_FORMAT + 1);
+    settings.time_format = (settings.time_format + 1) % (MAX_FORMAT + 1);
     printf("Time format changed.\n");
 }
 
 void toggleHourFormat(void) {
-    hour_format = (hour_format == 12) ? 24 : 12;
-    printf("Switched to %d-hour format.\n", hour_format);
+    settings.hour_format = (settings.hour_format == 12) ? 24 : 12;
+    printf("Switched to %d-hour format.\n", settings.hour_format);
 }
 
 void formatTime(char *buffer, size_t bufferSize, const struct tm *time_info) {
     static const char *formats[] = {"%Y-%m-%d ", "%d/%m/%Y ", "%m/%d/%Y ", "%a, %d %b %Y "};
-    static const char *hour_formats[] = {"%H", "%I"};
+    static const char *hour_formats[] = {"%H:%M:%S", "%I:%M:%S"};
 
-    snprintf(buffer, bufferSize, formats[time_format], hour_format == 12 ? hour_formats[1] : hour_formats[0]);
+    // Format the date
+    strftime(buffer, bufferSize, formats[time_format], time_info);
+    
+    // Append the time
+    strftime(buffer + strlen(buffer), bufferSize - strlen(buffer), hour_formats[hour_format == 12 ? 1 : 0], time_info);
 
+    // Append AM/PM if using 12-hour format
     if (hour_format == 12) {
-        strftime(buffer + strlen(buffer), bufferSize - strlen(buffer), hour_formats[0], time_info);
         snprintf(buffer + strlen(buffer), bufferSize - strlen(buffer), time_info->tm_hour >= 12 ? " PM" : " AM");
-    } else {
-        strftime(buffer + strlen(buffer), bufferSize - strlen(buffer), hour_formats[0], time_info);
     }
+}
+
+void decipherUnixTimestamp(void) {
+    time_t timestamp;
+    struct tm *tm_info;
+    char buffer[80];
+
+    printf("Enter a Unix timestamp: ");
+    if (scanf("%ld", &timestamp) != 1) {
+        fprintf(stderr, "Invalid input. Please enter a valid timestamp.\n");
+        while (getchar() != '\n'); // Clear the input buffer
+        return;
+    }
+
+    // Check for reasonable range of timestamps
+    if (timestamp < 0 || timestamp > 253402300799) { // 253402300799 is the max for 32-bit time_t
+        fprintf(stderr, "Timestamp out of valid range.\n");
+        return;
+    }
+
+    tm_info = gmtime(&timestamp);
+    if (tm_info == NULL) {
+        fprintf(stderr, "Error converting timestamp.\n");
+        return;
+    }
+
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", tm_info);
+    printf("The corresponding date and time is: %s UTC\n", buffer);
+}
+
+void convertSeconds(void) {
+    long total_seconds;
+    printf("Enter the number of seconds: ");
+    if (scanf("%ld", &total_seconds) != 1) {
+        fprintf(stderr, "Invalid input. Please enter a valid number of seconds.\n");
+        while (getchar() != '\n'); // Clear the input buffer
+        return;
+    }
+
+    int years = total_seconds / (DAYS_IN_A_YEAR * SECONDS_IN_AN_HOUR * 24);
+    total_seconds %= (DAYS_IN_A_YEAR * SECONDS_IN_AN_HOUR * 24);
+    int months = total_seconds / (DAYS_IN_A_MONTH * SECONDS_IN_AN_HOUR * 24); // Approximation
+    total_seconds %= (DAYS_IN_A_MONTH * SECONDS_IN_AN_HOUR * 24);
+    int weeks = total_seconds / (DAYS_IN_A_WEEK * SECONDS_IN_AN_HOUR * 24);
+    total_seconds %= (DAYS_IN_A_WEEK * SECONDS_IN_AN_HOUR * 24);
+    int days = total_seconds / (SECONDS_IN_AN_HOUR * 24);
+    total_seconds %= (SECONDS_IN_AN_HOUR * 24);
+    int hours = total_seconds / SECONDS_IN_AN_HOUR;
+    total_seconds %= SECONDS_IN_AN_HOUR;
+    int minutes = total_seconds / SECONDS_IN_A_MINUTE;
+    int seconds = total_seconds % SECONDS_IN_A_MINUTE;
+
+    printf("The time corresponds to: %d years, %d months, %d weeks, %d days, %d hours, %d minutes, %d seconds\n",
+           years, months, weeks, days, hours, minutes, seconds);
 }
 
 void runClock(void) {
@@ -307,8 +371,8 @@ void runClock(void) {
         gmtime_r(&rawtime, &gmt_time);
 
         // Adjust GMT time based on user's offset and DST
-        gmt_time.tm_hour += gmt_offset;
-        if (dst_active) {
+        gmt_time.tm_hour += settings.gmt_offset;
+        if (settings.dst_active) {
             gmt_time.tm_hour += 1;
         }
         mktime(&gmt_time); // Normalize the time
@@ -318,7 +382,7 @@ void runClock(void) {
 
         clearScreen();
         printf("Local Time: %s\n", local_buffer);
-        printf("User GMT Time (GMT%+d%s): %s\n", gmt_offset, dst_active? " DST" : "", gmt_buffer);
+        printf("User GMT Time (GMT%+d%s): %s\n", settings.gmt_offset, settings.dst_active ? " DST" : "", gmt_buffer);
         printf("\nControls: q(uit), o(ffset), d(st), f(ormat), h(our format)\n");
 
         #ifdef _WIN32
@@ -356,4 +420,3 @@ void runClock(void) {
     clearScreen();
     printf("Clock stopped!\n");
 }
-
