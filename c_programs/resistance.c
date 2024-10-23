@@ -2,7 +2,7 @@
 // Author: Gregory K. Bowne
 // Date:   17 MAY 2021
 // Time:   11:34:38
-// Brief:  This program calculates series and parallel resitance.
+// Brief:  This program calculates series and parallel resistance.
 
 #include <stdio.h>
 #include <math.h>

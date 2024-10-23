@@ -2,7 +2,7 @@
 // Author: Gregory K. Bowne
 // Date:   9 SEPT 2020
 // Time:   9:22:45
-// Brief:  This program makes a finger server that runs on Port 79. Compile and build the fingerclient.c to use it.
+// Brief:  This program makes a finger server that runs on Port 79 and announces its details.
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,6 +12,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <arpa/inet.h>
 
 #define BUFFER_SIZE 1024
 #define PORT 79
@@ -22,15 +23,14 @@ void error(const char *msg) {
     exit(EXIT_FAILURE);
 }
 
-char *generate_response(const char *input) {
-    // Implement actual logic here
+char *generate_response(const char *input, struct sockaddr_in serv_addr) {
     size_t input_len = strlen(input);
-    size_t response_len = input_len + 30; // Adjust size as needed
+    size_t response_len = input_len + 50; // Adjust size as needed
     char *response = (char *)malloc(response_len);
     if (response == NULL) {
         error("ERROR allocating memory for response");
     }
-    snprintf(response, response_len, "Received input: %s", input);
+    snprintf(response, response_len, "Received input: %s\nServer details:\nPort: %d\nIP Address: %s\n", input, PORT, inet_ntoa(serv_addr.sin_addr));
     return response;
 }
 
@@ -46,13 +46,13 @@ int main(int argc, char *argv[]) {
     }
 
     // Zero out the server address structure
-    memset(&serv_addr, 0, sizeof(serv_addr));
+    memset(&serv_addr, 0, sizeof(struct sockaddr_in));
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     serv_addr.sin_port = htons(PORT);
 
     // Bind the socket to the address and port
-    if (bind(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
+    if (bind(sockfd, (struct sockaddr *)&serv_addr, sizeof(struct sockaddr_in)) < 0) {
         close(sockfd);
         error("ERROR on binding");
     }
@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
     buffer[n] = '\0';
 
     // Generate a response
-    char *response = generate_response(buffer);
+    char *response = generate_response(buffer, serv_addr);
 
     // Send the response back to the client
     if (write(newsockfd, response, strlen(response)) < 0) {

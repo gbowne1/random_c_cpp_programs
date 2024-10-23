@@ -1265,7 +1265,14 @@
 	"window.zoomPerWindow": true,
 	// Files
 	// Configure glob patterns of file associations to languages.
-	"files.associations": {},
+	"files.associations": {
+		"*.html": "html",
+		"*.asm": "asm-intel-x86-generic",
+		"*.py": "python",
+		"stdio.h": "c",
+		"stdlib.h": "c",
+		"inet.h": "c"
+	},
 	// When enabled, the editor will attempt to guess the character set encoding when opening files. This setting can also be configured per language. Note, this setting is not respected by text search. Only `files.encoding` is respected.
 	"files.autoGuessEncoding": false,
 	// Controls auto save of editors that have unsaved changes.

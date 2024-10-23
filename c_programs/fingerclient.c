@@ -12,6 +12,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <arpa/inet.h>
 
 #define BUFFER_SIZE 1024
 #define PORT 79
@@ -22,66 +23,81 @@ void error(const char *msg) {
     exit(EXIT_FAILURE);
 }
 
+int sockfd = -1;
+char buffer[BUFFER_SIZE];
+
 int main(int argc, char *argv[]) {
-    int sockfd;
-    struct sockaddr_in serv_addr;
-    struct hostent *server;
-    char buffer[BUFFER_SIZE];
+    struct addrinfo hints, *res, *p;
 
     if (argc < 2) {
         fprintf(stderr, "Usage: %s hostname\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
-    // Create a socket
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0) {
-        error("Error opening socket");
-    }
+    // Initialize hints
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
 
-    // Get server information
-    server = gethostbyname(argv[1]);
-    if (server == NULL) {
-        fprintf(stderr, "Error: No such host\n");
+    int gai_status = getaddrinfo(argv[1], NULL, &hints, &res);
+    if (gai_status != 0) {
+        fprintf(stderr, "Error: getaddrinfo failed: %s\n", gai_strerror(gai_status));
+        freeaddrinfo(res);
         exit(EXIT_FAILURE);
     }
 
-    // Clear and set up server address structure
-    memset(&serv_addr, 0, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    memcpy(&serv_addr.sin_addr.s_addr, server->h_addr, server->h_length);
-    serv_addr.sin_port = htons(PORT);
+    // Iterate through the linked list of addresses
+    for (p = res; p != NULL; p = p->ai_next) {
+        sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+        if (sockfd < 0) {
+            perror("Error creating socket");
+            continue; // try the next address
+        }
 
-    // Connect to the server
-    if (connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
-        error("Error connecting");
+        if (connect(sockfd, p->ai_addr, p->ai_addrlen) == 0) {
+            break; // Success
+        }
+
+        close(sockfd); // Clean up on failure
     }
 
-    // Get the username to query
+    if (p == NULL) {
+        fprintf(stderr, "Error: Unable to connect to host: %s\n", argv[1]);
+        freeaddrinfo(res);
+        exit(EXIT_FAILURE);
+    }
+
+    // Query input
     printf("Please enter the username to query: ");
-    if (fgets(buffer, BUFFER_SIZE, stdin) == NULL) {
+    if (fgets(buffer, sizeof(buffer), stdin) == NULL) {
         error("Error reading input");
     }
-    buffer[strcspn(buffer, "\n")] = '\0'; // Remove trailing newline
+    size_t len = strcspn(buffer, "\n");
+    if (len == BUFFER_SIZE - 1 && buffer[len] != '\n') {
+        fprintf(stderr, "Error: Username too long\n");
+        close(sockfd);
+        freeaddrinfo(res);
+        exit(EXIT_FAILURE);
+    }
+    buffer[len] = '\0'; // Remove trailing newline
 
-    // Send the query to the server
+    // Send query to server
     if (send(sockfd, buffer, strlen(buffer), 0) < 0) {
         error("Error sending to socket");
     }
 
-    // Clear the buffer and receive the response
+    // Receive response
     memset(buffer, 0, BUFFER_SIZE);
     int n = recv(sockfd, buffer, BUFFER_SIZE - 1, 0);
     if (n < 0) {
         error("Error receiving from socket");
     }
-    buffer[n] = '\0';
+    buffer[n] = '\0'; // Ensure null-termination
 
-    // Print the server's response
+    // Print the response
     printf("%s\n", buffer);
 
-    // Close the socket
+    freeaddrinfo(res);
     close(sockfd);
-
     return EXIT_SUCCESS;
 }
