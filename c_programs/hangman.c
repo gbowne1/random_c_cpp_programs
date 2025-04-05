@@ -1,3 +1,6 @@
+// Date: 10 SEPT 2023
+// Brief: Linux x64 hangman using dictionary 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,20 +9,21 @@
 
 #define MAX_TRIES 6
 #define MAX_WORD_LENGTH 20
+#define DICTIONARY_FILE "/usr/share/dict/words"
 
 // Function prototypes
 void displayWord(const char *word, const int *guessed);
 void displayHangman(int tries);
-const char *selectRandomWord(const char *words[], int wordCount);
+const char *selectRandomWord(const char *filePath, char *wordBuffer);
 
 int main() {
-    const char *words[] = {"programming", "hangman", "computer", "algorithm", "software", "python", "java", "javascript", "c", "c++"};
-    const int wordCount = sizeof(words) / sizeof(words[0]);
+    char word[MAX_WORD_LENGTH];
+    if (!selectRandomWord(DICTIONARY_FILE, word)) {
+        fprintf(stderr, "Error: Could not load a word from the dictionary file.\n");
+        return 1;
+    }
 
-    srand(time(NULL));
-    const char *word = selectRandomWord(words, wordCount);
     int wordLength = strlen(word);
-
     int guessed[MAX_WORD_LENGTH] = {0};
     int tries = 0;
     int correctGuesses = 0;
@@ -32,7 +36,12 @@ int main() {
 
         printf("Guess a letter: ");
         char guess = tolower(getchar());
-        getchar(); // Consume newline character
+        while (getchar() != '\n'); // Clear input buffer
+
+        if (!isalpha(guess)) {
+            printf("Invalid input. Please guess a letter.\n");
+            continue;
+        }
 
         int found = 0;
         for (int i = 0; i < wordLength; i++) {
@@ -83,7 +92,37 @@ void displayHangman(int tries) {
     printf("%s\n", hangman[tries]);
 }
 
-// Select a random word from the given array
-const char *selectRandomWord(const char *words[], int wordCount) {
-    return words[rand() % wordCount];
+// Select a random word from the dictionary file
+const char *selectRandomWord(const char *filePath, char *wordBuffer) {
+    FILE *file = fopen(filePath, "r");
+    if (!file) {
+        return NULL;
+    }
+
+    char line[MAX_WORD_LENGTH];
+    char *words[100000];
+    int wordCount = 0;
+
+    while (fgets(line, sizeof(line), file)) {
+        line[strcspn(line, "\n")] = '\0'; // Remove newline character
+        if (strlen(line) >= MAX_WORD_LENGTH) {
+            continue; // Skip overly long words
+        }
+        words[wordCount++] = strdup(line);
+    }
+    fclose(file);
+
+    if (wordCount == 0) {
+        return NULL;
+    }
+
+    srand(time(NULL));
+    strcpy(wordBuffer, words[rand() % wordCount]);
+
+    // Free allocated memory
+    for (int i = 0; i < wordCount; i++) {
+        free(words[i]);
+    }
+
+    return wordBuffer;
 }
