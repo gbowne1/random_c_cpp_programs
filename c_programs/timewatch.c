@@ -109,8 +109,15 @@ int kbhit(void) {
     struct timeval tv = {0L, 0L};
     fd_set fds;
     FD_ZERO(&fds);
-    FD_SET(0, &fds);
-    return select(1, &fds, NULL, NULL, &tv) > 0;
+    FD_SET(STDIN_FILENO, &fds);
+    struct termios oldt, newt;
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+    int result = select(STDIN_FILENO + 1, &fds, NULL, NULL, &tv);
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    return result > 0;
     #endif
 }
 
@@ -368,7 +375,7 @@ void runClock(void) {
     while (running) {
         time(&rawtime);
         local_time = localtime(&rawtime);
-        gmtime_r(&rawtime, &gmt_time);
+        gmt_time = *gmtime(&rawtime);
 
         // Adjust GMT time based on user's offset and DST
         gmt_time.tm_hour += settings.gmt_offset;
@@ -412,6 +419,8 @@ void runClock(void) {
                 case 'h':
                     toggleHourFormat();
                     break;
+                default:
+                    printf("Invalid input. Try again.\n");
             }
         }
     }
