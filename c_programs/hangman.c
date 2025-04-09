@@ -99,8 +99,12 @@ const char *selectRandomWord(const char *filePath, char *wordBuffer) {
         return NULL;
     }
 
-    char line[MAX_WORD_LENGTH];
-    char *words[100000];
+    char **words = malloc(100000 * sizeof(char *));
+    char line[MAX_WORD_LENGTH]; // Declare the line variable
+    if (!words) {
+        fclose(file);
+        return NULL;
+    }
     int wordCount = 0;
 
     while (fgets(line, sizeof(line), file)) {
@@ -119,10 +123,11 @@ const char *selectRandomWord(const char *filePath, char *wordBuffer) {
     srand(time(NULL));
     strcpy(wordBuffer, words[rand() % wordCount]);
 
-    // Free allocated memory
+    free(words);
     for (int i = 0; i < wordCount; i++) {
         free(words[i]);
     }
-
+    free(words);
+    return wordBuffer;
     return wordBuffer;
 }
