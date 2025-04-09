@@ -4,14 +4,15 @@
             "name": "Linux",
             "includePath": [
                 "/usr/include",
-                "/usr/include/x86_64-linux-gnu"
+                "/usr/include/x86_64-linux-gnu",
+                "${workspaceFolder}/include"
             ],
             "compilerPath": "/usr/bin/gcc",
             "compileCommands": "./build/compile_commands.json",
             "defines": [],
             "cStandard": "c11",
-            "cppStandard": "c++11",
-            "intelliSenseMode": "linux-gcc-x86",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-gcc-x64",
             "compilerArgs": [
                 "-Wall",
                 "-Werror",
@@ -23,7 +24,8 @@
             "browse": {
                 "path": [
                     "/usr/include",
-                    "/usr/include/x86_64-linux-gnu"
+                    "/usr/include/x86_64-linux-gnu",
+                    "${workspaceFolder}"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db"
@@ -34,13 +36,11 @@
             "name": "Windows",
             "includePath": [
                 "${workspaceFolder}/**",
-                "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.29.30133/include",
-                "C:/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/ucrt",
-                "C:/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/shared",
-                "C:/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/um",
-                "C:/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/winrt"
+                "C:/msys64/ucrt64/include",
+                "C:/msys64/mingw64/include",
+                "C:/msys64/usr/include"
             ],
-            "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.29.30133/bin/Hostx64/x64/cl.exe",
+            "compilerPath": "C:/msys64/ucrt64/bin/gcc.exe",
             "defines": [
                 "_DEBUG",
                 "UNICODE",
@@ -48,15 +48,20 @@
             ],
             "cStandard": "c11",
             "cppStandard": "c++17",
-            "intelliSenseMode": "windows-msvc-x64",
+            "intelliSenseMode": "windows-gcc-x64",
+            "compilerArgs": [
+                "-Wall",
+                "-Werror",
+                "-Wextra",
+                "-pedantic",
+                "-O3"
+            ],
             "browse": {
                 "path": [
                     "${workspaceFolder}/**",
-                    "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.29.30133/include",
-                    "C:/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/ucrt",
-                    "C:/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/shared",
-                    "C:/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/um",
-                    "C:/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/winrt"
+                    "C:/msys64/ucrt64/include",
+                    "C:/msys64/mingw64/include",
+                    "C:/msys64/usr/include"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db"

@@ -3724,5 +3724,6 @@
 	// Simple Browser
 	// Enable/disable the floating indicator that shows when focused in the simple browser.
 	"simpleBrowser.focusLockIndicator.enabled": true,
-	"testing.automaticallyOpenTestResults": "openOnTestStart"
+	"testing.automaticallyOpenTestResults": "openOnTestStart",
+	"C_Cpp.default.compilerPath": "C:/msys64/ucrt64/bin/gcc.exe"
 }
