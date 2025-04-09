@@ -40,6 +40,52 @@
             "problemMatcher": [
                 "$gcc"
             ]
-        }
+        },
+		{
+            "label": "Build linearregress.exe (Windows)",
+            "type": "shell",
+            "command": "C:/msys64/ucrt64/bin/gcc.exe",
+            "args": [
+                "-g",
+                "${workspaceFolder}/cpp_programs/linearregress.cpp",
+                "-o",
+                "${workspaceFolder}/cpp_programs/linearregress.exe",
+                "-Wall",
+                "-Werror",
+                "-Wextra",
+                "-pedantic",
+                "-lm"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+		{
+			"label": "Build linearregress (Linux)",
+			"type": "shell",
+			"command": "/usr/bin/gcc",
+			"args": [
+				"-g",
+				"${workspaceFolder}/linearregress.cpp",
+				"-o",
+				"${workspaceFolder}/linearregress",
+				"-Wall",
+				"-Werror",
+				"-Wextra",
+				"-pedantic",
+				"-lm"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": [
+				"$gcc"
+			]
+		}
     ]
 }

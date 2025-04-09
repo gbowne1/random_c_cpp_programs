@@ -8,9 +8,7 @@
 
 #include <algorithm>
 #include <cmath>
-#include <cstdio>
 #include <fstream>
-#include <functional>
 #include <iostream>
 #include <numeric>
 #include <sstream>
@@ -29,7 +27,7 @@ void linearRegression(const std::vector<double> &x, const std::vector<double> &y
 	if (std::adjacent_find(x.begin(), x.end(), std::not_equal_to<double>()) == x.end())
 	{
 		std::cerr << "Warning: All x values are the same. This results in a vertical line." << std::endl;
-		a = std::numeric_limits<double>::quiet_NaN();
+		a = 0.0; // Default value for slope when x values are the same
 		b = mean(y);
 		return;
 	}

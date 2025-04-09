@@ -104,7 +104,7 @@ void clearScreen(void) {
 
 int kbhit(void) {
     #ifdef _WIN32
-    return _kbhit();
+    return kbhit();
     #else
     struct timeval tv = {0L, 0L};
     fd_set fds;

@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
 //Function to calculate the max current flowing trough a resistor
 float calcMaxCurrent(float resistor, float wattage)
 {
