@@ -65,7 +65,12 @@ int main() {
         return 1;
     }
 
-    int firstMatrix[r1][c1], secondMatrix[r2][c2], result[r1][c2];
+    int **firstMatrix = malloc(r1 * sizeof(int *));
+    int **secondMatrix = malloc(r2 * sizeof(int *));
+    int **result = malloc(r1 * sizeof(int *));
+    for (int i = 0; i < r1; i++) firstMatrix[i] = malloc(c1 * sizeof(int));
+    for (int i = 0; i < r2; i++) secondMatrix[i] = malloc(c2 * sizeof(int));
+    for (int i = 0; i < r1; i++) result[i] = malloc(c2 * sizeof(int));
 	printf("Enter elements for the first matrix:\n");
 	getMatrixElements(firstMatrix, r1, c1);
 
@@ -73,10 +78,15 @@ int main() {
     printf("Enter elements for the second matrix:\n");
     getMatrixElements(secondMatrix, r2, c2);
 
-    if (multiplyMatrices(firstMatrix, secondMatrix, result, r1, c1, r2, c2)) {
+    for (int i = 0; i < r1; i++) free(firstMatrix[i]);
+    for (int i = 0; i < r2; i++) free(secondMatrix[i]);
+    for (int i = 0; i < r1; i++) free(result[i]);
+    free(firstMatrix);
+    free(secondMatrix);
+    free(result);
 
-    	printf("Resultant matrix:\n");
-    	display(result, r1, c2);
-	}
+    printf("Resultant matrix:\n");
+    display(result, r1, c2);
+
     return 0;
 }

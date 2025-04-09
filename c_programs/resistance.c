@@ -42,7 +42,12 @@ int main()
 	printf("Enter the number of resistors: ");
 	scanf("%d", &count);
 
-	float resistors[count];
+	float *resistors = (float *)malloc(count * sizeof(float));
+	if (resistors == NULL)
+	{
+		printf("Memory allocation failed.\n");
+		return 1;
+	}
 	for (int i = 0; i < count; i++)
 	{
 		printf("Enter the resistance of resistor %d: ", i + 1);
@@ -51,9 +56,12 @@ int main()
 
 	float series = calcSeriesResistance(resistors, count);
 	float parallel = calcParallelResistance(resistors, count);
+	free(resistors);
 
 	printf("Total resistance in series: %.2f ohms\n", series);
 	printf("Total resistance in parallel: %.2f ohms\n", parallel);
+
+	return 0;
 
 	return 0;
 }
