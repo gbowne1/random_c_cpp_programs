@@ -95,7 +95,7 @@ int main() {
     getchar();  // Consume newline character left by scanf
 
     if (choice == 'e') {
-        printf("Enter string to encode: ");
+        printf("Enter a numerical string to encode in Base64: ");
         fgets(input, sizeof(input), stdin);
         input[strcspn(input, "\n")] = 0;  // Remove newline character from input
 
@@ -107,7 +107,7 @@ int main() {
         printf("Encoded: %s\n", encoded);
         free(encoded);
     } else if (choice == 'd') {
-        printf("Enter base64 string to decode: ");
+        printf("Enter Base64 string to decode: ");
         fgets(input, sizeof(input), stdin);
         input[strcspn(input, "\n")] = 0;  // Remove newline character from input
 

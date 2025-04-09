@@ -4,15 +4,78 @@
 // Time:   9:22:45
 // Brief:  This program makes a finger server that runs on Port 79 and announces its details.
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#ifdef _WIN32
+#include <windows.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <io.h>
+#include <fcntl.h>
+#endif
+
+#ifdef __linux__
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <signal.h>
+#include <fcntl.h>
+#include <netinet/tcp.h>
+#include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/select.h>
+#include <sys/wait.h>
+#include <sys/un.h>
+#endif
+
+#ifdef __APPLE__
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/select.h>
+#include <sys/un.h>
+#endif
+
+#ifdef _POSIX_C_SOURCE
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <signal.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/select.h>
+#include <sys/wait.h>
+#include <sys/un.h>
+#include <sys/param.h>
+#include <sys/mman.h>
+#endif
+
+// Common Includes
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <limits.h>
+#include <stdbool.h>
+#include <math.h>
+#include <complex.h>
+#include <assert.h>
+#include <time.h>
+
 
 #define BUFFER_SIZE 1024
 #define PORT 79

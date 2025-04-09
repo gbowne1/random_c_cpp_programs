@@ -8,9 +8,9 @@
 // the discriminant and the complex roots using the quadratic formula. If the user enters invalid input,
 // the program provides a clear error message and prompts for correct input.
 
-#include <complex.h>
-#include <math.h>
 #include <stdio.h>
+#include <math.h>
+#include <complex.h> // Ensure this is included for complex number operations
 
 void clearInputBuffer()
 {
@@ -30,21 +30,23 @@ int readCoefficients(const char *prompt, double complex *coefficient)
 		printf("Invalid input. Please enter complex numbers in the format: real imaginary\n");
 		clearInputBuffer();
 	}
-	*coefficient = real + imag * I;
+    *coefficient = real + imag * I; // Use 'I' consistently for imaginary unit
 	clearInputBuffer();
-	return 0;
+        return 0;
 }
 // Function to calculate the discriminant
 double complex calculateDiscriminant(double complex a, double complex b, double complex c)
 {
-	return cpow(b, 2) - 4.0 * a * c;
+    return cpow(b, 2) - 4.0 * a * c;
 }
 
 // Function to calculate the roots
 void calculateRoots(double complex a, double complex b, double complex discriminant, double complex *root1, double complex *root2)
 {
-	*root1 = (-b + csqrt(discriminant)) / (2.0 * a);
-	*root2 = (-b - csqrt(discriminant)) / (2.0 * a);
+    if (root1 != NULL)
+        *root1 = (-b + csqrt(discriminant)) / (2.0 * a);
+    if (root2 != NULL)
+        *root2 = (-b - csqrt(discriminant)) / (2.0 * a);
 }
 
 int main()
@@ -103,13 +105,11 @@ int main()
 	calculateRoots(a, b, discriminant, &root1, &root2);
 
 
-	readCoefficients("Enter the real and imaginary parts of the first complex number (a): ", &a);
-	readCoefficients("Enter the real and imaginary parts of the second complex number (b): ", &b);
-	readCoefficients("Enter the real and imaginary parts of the third complex number (c): ", &c);
+	// Coefficients have already been read earlier, no need to call readCoefficients again.
 
 	// Display the roots
 	printf("Root  1 = %f + %fi\n", creal(root1), cimag(root1));
-	printf("Root  2 = %f + %fi\n", creal(root2), cimag(root2));
-
-	return 0;
-}
+        printf("Root  2 = %f + %fi\n", creal(root2), cimag(root2));
+        return 0;
+    };
+};
