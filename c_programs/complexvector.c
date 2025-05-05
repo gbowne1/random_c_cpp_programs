@@ -1,3 +1,5 @@
+// This program will compile under C89/C90 as it does not use C99 or later featuresw
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>

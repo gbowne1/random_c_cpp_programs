@@ -8,6 +8,8 @@
 // it is a space where vectors can be added together and multiplied by
 // scalars, and it also has an associated inner product that allows the
 // calculation of angles and lengths
+// 
+// This is not valid code in C89/C90. Compile this with C99 or later.
 
 #include <math.h>
 #include <stdio.h>

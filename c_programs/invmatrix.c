@@ -70,11 +70,14 @@ float determinant(float matrix[N][N], int n)
 // Placeholder SVD computation function
 void computeSVD(float matrix[N][N], float U[N][N], float S[N], float V[N][N])
 {
-	// This function should compute the SVD and fill the S array with singular values
-	// For demonstration, we'll just fill S with example values
-	S[0] = 4.0; // Largest singular value
-	S[1] = 2.0; // Next singular value
-	S[2] = 0.5; // Smallest singular value
+    (void)matrix; // Marking matrix as unused
+    (void)U;      // Marking U as unused
+    (void)V;      // Marking V as unused
+
+    // For demonstration, we'll just fill S with example values
+    S[0] = 4.0; // Largest singular value
+    S[1] = 2.0; // Next singular value
+    S[2] = 0.5; // Smallest singular value
 }
 
 float conditionNumber(float matrix[N][N], int n)

@@ -50,7 +50,6 @@ int main() {
 
     double initialGuess;
     int maxIterations;
-	double targetValue;
 
 	printf("This program calculates the square root of %d using the Newton-Raphson method.\n", TARGET_VALUE);
 

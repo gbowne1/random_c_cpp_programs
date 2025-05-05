@@ -179,7 +179,18 @@ int main()
 		return -1;
 	}
 
-	// Assume matrices a and b are filled with values here
+	// Initialize matrices a and b with some values (for example, identity matrix or random values)
+	for (int i = 0; i < n; i++)
+	{
+		for (int j = 0; j < n; j++)
+		{
+			// Fill matrix a with some values (for testing purposes)
+			a[i * n + j] = (i + 1) * (j + 1); // Just an example, fill with some pattern
+
+			// Fill matrix b with some values (for testing purposes)
+			b[i * n + j] = (i + 1) * (n - j); // Another example pattern
+		}
+	}
 
 	// Calculate inverses of A and B
 	inverseMatrix(n, a, a_inv);
@@ -189,10 +200,10 @@ int main()
 	if (doMatricesCommute(n, a, b))
 	{
 		// Add the inverses of A and B
-		addMatrices(n, (float *)a_inv, (float *)b_inv, (float *)sum_inv);
+		addMatrices(n, a_inv, b_inv, sum_inv);
 
 		// Add A and B, and then calculate the inverse of the sum
-		addMatrices(n, (float *)a, (float *)b, (float *)sum);
+		addMatrices(n, a, b, sum);
 		inverseMatrix(n, sum, inv_sum);
 
 		// Check if the sum of inverses is equal to the inverse of the sum

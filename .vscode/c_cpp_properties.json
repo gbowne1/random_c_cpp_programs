@@ -8,7 +8,9 @@
                 "${workspaceFolder}/include"
             ],
             "compilerPath": "/usr/bin/gcc",
-            "compileCommands": "./build/compile_commands.json",
+            "compileCommands": [
+                "./build/compile_commands.json"
+            ],
             "defines": [],
             "cStandard": "c11",
             "cppStandard": "c++17",
@@ -38,9 +40,10 @@
                 "${workspaceFolder}/**",
                 "C:/msys64/ucrt64/include",
                 "C:/msys64/mingw64/include",
-                "C:/msys64/usr/include"
+                "C:/msys64/usr/include",
+                "C:/msys64/ucrt64/bin"
             ],
-            "compilerPath": "C:/msys64/ucrt64/bin/gcc.exe",
+            "compilerPath": "C:/msys64/ucrt64/bin/g++.exe",
             "defines": [
                 "_DEBUG",
                 "UNICODE",

@@ -14,6 +14,7 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#include <conio.h>
 #else
 #include <unistd.h>
 #include <sys/select.h>
@@ -104,7 +105,7 @@ void clearScreen(void) {
 
 int kbhit(void) {
     #ifdef _WIN32
-    return kbhit();
+    return _kbhit();
     #else
     struct timeval tv = {0L, 0L};
     fd_set fds;
@@ -310,7 +311,7 @@ void decipherUnixTimestamp(void) {
     char buffer[80];
 
     printf("Enter a Unix timestamp: ");
-    if (scanf("%ld", &timestamp) != 1) {
+    if (scanf("%lld", &timestamp) != 1) {
         fprintf(stderr, "Invalid input. Please enter a valid timestamp.\n");
         while (getchar() != '\n'); // Clear the input buffer
         return;

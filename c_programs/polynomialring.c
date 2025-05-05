@@ -2,45 +2,46 @@
 // Author: Gregory K. Bowne
 // Date:   12 SEP 1998
 // Time:   9:33:38
-// Brief:  The provided C program is designed to perform operations on polynomials represented as rings, specifically adding and multiplying two polynomials. Here's a description of the program and its components. From an algorithmic perspective, the program is implementing a simple form of the distributive property of multiplication over addition for polynomials.
+// Brief:  This program performs addition and multiplication of polynomials represented as arrays of terms.
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 // Structure to represent a term in a polynomial
-typedef struct Term
-{
-	int coefficient;
-	int exponent;
+typedef struct Term {
+    int coefficient;
+    int exponent;
 } Term;
 
 // Structure to represent a polynomial
-typedef struct Polynomial
-{
-	int degree;
-	int capacity;
-	int num_terms;
-	Term *terms; // Dynamic array of terms
+typedef struct Polynomial {
+    int num_terms;   // Number of terms currently stored
+    int capacity;    // Maximum number of terms allocated
+    Term *terms;     // Dynamic array of terms
 } Polynomial;
 
-Polynomial *createPolynomial(int num_terms) {
+// Forward declaration
+void addTerm(Polynomial* poly, Term* term);
+
+Polynomial *createPolynomial(int capacity) {
     Polynomial *poly = malloc(sizeof(Polynomial));
     if (!poly) {
         perror("Memory allocation failed for Polynomial");
         return NULL;
     }
-    
-    poly->num_terms = num_terms;
-    poly->terms = malloc(num_terms * sizeof(Term));
+
+    poly->num_terms = 0;
+    poly->capacity = capacity;
+    poly->terms = malloc(capacity * sizeof(Term));
     if (!poly->terms) {
         perror("Memory allocation failed for Polynomial terms");
         free(poly);
         return NULL;
     }
-    
+
     return poly;
 }
-
 
 void freePolynomial(Polynomial *poly) {
     if (poly) {
@@ -49,54 +50,49 @@ void freePolynomial(Polynomial *poly) {
     }
 }
 
-// Function to add two polynomials
-Polynomial *addPolynomials(Polynomial *poly1, Polynomial *poly2) {
-    int total_terms = poly1->num_terms + poly2->num_terms;
-    
-    Polynomial *result = createPolynomial(total_terms);
-    if (!result) {
-        perror("Memory allocation failed for result Polynomial");
-        return NULL;
-    }
-
-    int i = 0, j = 0, k = 0;
-
-    while (i < poly1->num_terms && j < poly2->num_terms) {
-        if (poly1->terms[i].exponent > poly2->terms[j].exponent) {
-            result->terms[k++] = poly1->terms[i++];
-        } else if (poly1->terms[i].exponent < poly2->terms[j].exponent) {
-            result->terms[k++] = poly2->terms[j++];
-        } else {
-            result->terms[k].coefficient = poly1->terms[i].coefficient + poly2->terms[j].coefficient;
-            if (result->terms[k].coefficient != 0) {
-                k++;
-            }
-            i++;
-            j++;
+// Add a term in order, combining like terms if needed
+void addTerm(Polynomial* poly, Term* term) {
+    for (int i = 0; i < poly->num_terms; ++i) {
+        if (poly->terms[i].exponent == term->exponent) {
+            poly->terms[i].coefficient += term->coefficient;
+            return;
         }
     }
 
-    while (i < poly1->num_terms) result->terms[k++] = poly1->terms[i++];
-    while (j < poly2->num_terms) result->terms[k++] = poly2->terms[j++];
+    // New term; insert at the end
+    if (poly->num_terms >= poly->capacity) {
+        poly->capacity *= 2;
+        poly->terms = realloc(poly->terms, poly->capacity * sizeof(Term));
+    }
 
-    result->num_terms = k;
+    poly->terms[poly->num_terms++] = *term;
+}
+
+// Function to add two polynomials
+Polynomial *addPolynomials(Polynomial *poly1, Polynomial *poly2) {
+    Polynomial *result = createPolynomial(poly1->num_terms + poly2->num_terms);
+    if (!result) return NULL;
+
+    for (int i = 0; i < poly1->num_terms; i++) {
+        addTerm(result, &poly1->terms[i]);
+    }
+    for (int i = 0; i < poly2->num_terms; i++) {
+        addTerm(result, &poly2->terms[i]);
+    }
+
     return result;
 }
 
-
 // Function to multiply two polynomials
 Polynomial* multiplyPolynomials(Polynomial* poly1, Polynomial* poly2) {
-    Polynomial* result = createPolynomial(poly1->degree + poly2->degree);
-    if (!result) {
-        return NULL;
-    }
+    Polynomial* result = createPolynomial(poly1->num_terms * poly2->num_terms);
+    if (!result) return NULL;
 
-    for (int i = 0; i < poly1->degree; i++) {
-        for (int j = 0; j < poly2->degree; j++) {
+    for (int i = 0; i < poly1->num_terms; i++) {
+        for (int j = 0; j < poly2->num_terms; j++) {
             Term term;
             term.coefficient = poly1->terms[i].coefficient * poly2->terms[j].coefficient;
             term.exponent = poly1->terms[i].exponent + poly2->terms[j].exponent;
-
             addTerm(result, &term);
         }
     }
@@ -104,61 +100,45 @@ Polynomial* multiplyPolynomials(Polynomial* poly1, Polynomial* poly2) {
     return result;
 }
 
-void addTerm(Polynomial* poly, Term* term) {
-    int index = poly->degree;
-    while (index > 0 && poly->terms[index-1].exponent >= term->exponent) {
-        index--;
+// Function to print a polynomial
+void printPolynomial(Polynomial *poly) {
+    for (int i = 0; i < poly->num_terms; i++) {
+        printf("%d*x^%d", poly->terms[i].coefficient, poly->terms[i].exponent);
+        if (i != poly->num_terms - 1)
+            printf(" + ");
     }
-
-    memmove(&poly->terms[index+1], &poly->terms[index], (poly->degree-index)*sizeof(Term));
-    poly->terms[index] = *term;
-    poly->degree++;
+    printf("\n");
 }
 
-int main()
-{
-	Polynomial *poly1 = createPolynomial(3);
-	poly1->terms[0].coefficient = 2;
-	poly1->terms[0].exponent = 2;
-	poly1->terms[1].coefficient = 3;
-	poly1->terms[1].exponent = 1;
-	poly1->terms[2].coefficient = 1;
-	poly1->terms[2].exponent = 0;
+int main() {
+    Polynomial *poly1 = createPolynomial(3);
+    poly1->terms[0].coefficient = 2; poly1->terms[0].exponent = 2;
+    poly1->terms[1].coefficient = 3; poly1->terms[1].exponent = 1;
+    poly1->terms[2].coefficient = 1; poly1->terms[2].exponent = 0;
+    poly1->num_terms = 3;
 
-	Polynomial *poly2 = createPolynomial(3);
-	poly2->terms[0].coefficient = 4;
-	poly2->terms[0].exponent = 2;
-	poly2->terms[1].coefficient = 5;
-	poly2->terms[1].exponent = 1;
-	poly2->terms[2].coefficient = 6;
-	poly2->terms[2].exponent = 0;
+    Polynomial *poly2 = createPolynomial(3);
+    poly2->terms[0].coefficient = 4; poly2->terms[0].exponent = 2;
+    poly2->terms[1].coefficient = 5; poly2->terms[1].exponent = 1;
+    poly2->terms[2].coefficient = 6; poly2->terms[2].exponent = 0;
+    poly2->num_terms = 3;
 
-	Polynomial *sum = addPolynomials(poly1, poly2);
-	if (sum)
-	{
-		printf("Sum:\n");
-		for (int i = 0; i < sum->num_terms; i++)
-		{
-			printf("%d*x^%d ", sum->terms[i].coefficient, sum->terms[i].exponent);
-		}
-		printf("\n");
-		freePolynomial(&sum);
-	}
+    Polynomial *sum = addPolynomials(poly1, poly2);
+    if (sum) {
+        printf("Sum:\n");
+        printPolynomial(sum);
+        freePolynomial(sum);
+    }
 
-	Polynomial *product = multiplyPolynomials(poly1, poly2);
-	if (product)
-	{
-		printf("Product:\n");
-		for (int i = 0; i < product->num_terms; i++)
-		{
-			printf("%d*x^%d ", product->terms[i].coefficient, product->terms[i].exponent);
-		}
-		printf("\n");
-		freePolynomial(&product);
-	} // Free the dynamically allocated Polynomial
+    Polynomial *product = multiplyPolynomials(poly1, poly2);
+    if (product) {
+        printf("Product:\n");
+        printPolynomial(product);
+        freePolynomial(product);
+    }
 
-	freePolynomial(&poly1);
-	freePolynomial(&poly2);
+    freePolynomial(poly1);
+    freePolynomial(poly2);
 
-	return 0;
+    return 0;
 }

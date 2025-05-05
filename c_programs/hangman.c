@@ -117,17 +117,17 @@ const char *selectRandomWord(const char *filePath, char *wordBuffer) {
     fclose(file);
 
     if (wordCount == 0) {
+        free(words);  // Ensure that you free the words array even if no words are read
         return NULL;
     }
 
     srand(time(NULL));
     strcpy(wordBuffer, words[rand() % wordCount]);
 
-    free(words);
+    // Free the memory for each word before freeing the array itself
     for (int i = 0; i < wordCount; i++) {
         free(words[i]);
     }
-    free(words);
-    return wordBuffer;
+    free(words);  // Free the words array after freeing individual words
     return wordBuffer;
 }

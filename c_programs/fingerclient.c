@@ -5,8 +5,8 @@
 // Brief:  This program makes a finger client that connects to the finger server.  ./fingerclient <hostname>
 
 #ifdef _WIN32
-#include <windows.h>
 #include <winsock2.h>
+#include <windows.h>
 #include <ws2tcpip.h>
 #include <io.h>
 #include <fcntl.h>

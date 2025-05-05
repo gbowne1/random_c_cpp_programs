@@ -1,28 +1,44 @@
 cmake_minimum_required(VERSION 3.10)
+project(MyProject C CXX)
 
-# Project name
-project(MyProject)
+set(CMAKE_C_COMPILER gcc)
+set(CMAKE_CXX_COMPILER g++)
 
-# Specify the output directory for build
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 17)
 
-# Define source directories
-set(C_SOURCE_DIR ${CMAKE_SOURCE_DIR}/c_programs)
-set(CPP_SOURCE_DIR ${CMAKE_SOURCE_DIR}/cpp_programs)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -Wall -Wextra -Werror -pedantic -Wpedantic")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wall -Wextra -Werror -pedantic -Wpedantic")
 
-# Find all C and C++ source files
-file(GLOB C_SOURCES "${C_SOURCE_DIR}/*.c")
-file(GLOB CPP_SOURCES "${CPP_SOURCE_DIR}/*.cpp")
+file(GLOB C_SOURCES "c_programs/*.c")
+file(GLOB CPP_SOURCES "cpp_programs/*.cpp")
 
-# Add executable
-add_executable(${PROJECT_NAME} ${C_SOURCES} ${CPP_SOURCES})
+# List of C files requiring -lm
+set(MATH_FILES
+    barycentric cintegral complexquadr complexvector distprime eigenvalue euclidianvector
+    fingerclient fingerserver gageblockstack invmatrix kirchoffs lowpassfil quadraditsolv
+    rcnetwork resistance resistorcolor sqrtnewton stddeviation
+)
 
-# Set C++ standard
-set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
+foreach(cfile ${C_SOURCES})
+    get_filename_component(fname ${cfile} NAME_WE)
+    add_executable(${fname} ${cfile})
 
-# Link the math library for C files
-if(UNIX) # macOS and Linux
-    target_link_libraries(${PROJECT_NAME} m)
-elseif(WIN32) # Windows
-    target_link_libraries(${PROJECT_NAME} "") # Math functions are generally part of MSVC runtime
-endif()
+    if(${fname} IN_LIST MATH_FILES)
+        target_link_libraries(${fname} m)
+    endif()
+
+   if(${fname} STREQUAL "fingerclient" OR ${fname} STREQUAL "fingerserver")
+        if(WIN32)
+        target_link_libraries(${fname} ws2_32)
+        endif()
+   endif()
+
+    set_target_properties(${fname} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+endforeach()
+
+foreach(cppfile ${CPP_SOURCES})
+    get_filename_component(fname ${cppfile} NAME_WE)
+    add_executable(${fname} ${cppfile})
+    set_target_properties(${fname} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+endforeach()

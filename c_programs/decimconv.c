@@ -1,3 +1,5 @@
+// This is not compatible with C89/C90. Must be compiled with C99 or later
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

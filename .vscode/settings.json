@@ -1273,7 +1273,8 @@
 		"stdio.h": "c",
 		"stdlib.h": "c",
 		"inet.h": "c",
-		"stdbool.h": "c"
+		"stdbool.h": "c",
+		"iostream": "cpp"
 	},
 	// When enabled, the editor will attempt to guess the character set encoding when opening files. This setting can also be configured per language. Note, this setting is not respected by text search. Only `files.encoding` is respected.
 	"files.autoGuessEncoding": false,
@@ -3725,5 +3726,5 @@
 	// Enable/disable the floating indicator that shows when focused in the simple browser.
 	"simpleBrowser.focusLockIndicator.enabled": true,
 	"testing.automaticallyOpenTestResults": "openOnTestStart",
-	"C_Cpp.default.compilerPath": "C:/msys64/ucrt64/bin/gcc.exe"
+	"C_Cpp.default.compilerPath": "C:/msys64/ucrt64/bin/g++.exe"
 }

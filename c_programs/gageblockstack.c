@@ -1,106 +1,41 @@
-#include <math.h>
 #include <stdio.h>
+#include <math.h>
 
-#ifndef M_PI
-#define M_PI 3.141592653589793
-#endif
-
-#define MAX_BLOCKS 81 // Corrected to match the total number of blocks
-
-typedef struct
-{
-	double length;
-	double width;
-	double height;
+#define GAGEBLOCKSTACK_MAX 10  // Example max number of gage blocks
+#define M_PI 3.14159265358979323846  // Define pi for calculations
+// Define the GageBlock structure
+typedef struct {
+    double value;  // Value of the gage block
 } GageBlock;
 
-GageBlock gageBlocks[MAX_BLOCKS];
-
-// Function to initialize the gage blocks with predefined dimensions
-void initializeGageBlocks()
+// Function to calculate the height using the gage blocks and a sine bar
+double calculateHeight(double angle, double sineBarLength, GageBlock gageBlocks[], int numBlocks)
 {
-	int index = 0;
-	for (int i = 0; i <= 8; i++)
-	{
-		double dimension = 0.1001 + i * 0.0001;
-		gageBlocks[index++].length = dimension;
-		gageBlocks[index++].width = dimension;
-		gageBlocks[index++].height = dimension;
-	}
-	for (int i = 0; i <= 8; i++)
-	{
-		double dimension = 0.101 + i * 0.001; // Initialize and calculate dimension value
-		gageBlocks[index++].length = dimension;
-		gageBlocks[index++].width = dimension;
-		gageBlocks[index++].height = dimension;
-	}
-	for (int i = 0; i <= 8; i++)
-	{
-		double dimension = 0.050;
-		gageBlocks[index++].length = dimension;
-		gageBlocks[index++].width = dimension;
-		gageBlocks[index++].height = dimension;
-	}
-	for (int i = 0; i < 4; i++)
-	{
-		gageBlocks[index++].length = 1.000 + i * 1.000;
-		gageBlocks[index++].width = 1.000 + i * 1.000;
-		gageBlocks[index++].height = 1.000 + i * 1.000;
-	}
+    (void)gageBlocks;  // Mark unused parameters
+    (void)numBlocks;
+
+    // Calculate the height based on the sine bar and angle (height = sineBarLength * sin(angle))
+    return sineBarLength * sin(angle);
 }
 
-void calculateStackHeight(double angle, GageBlock gageBlocks[], int numBlocks)
-{
-	double totalHeight = 0.0;
-	double baseAngle = angle; // Assuming the base angle is the same as the stack angle
+int main() {
+    // Declare an array of gage blocks and initialize them
+    GageBlock gageBlocks[] = {
+        {0.1730}, {0.1740}, {0.1750}, {0.1760}, {0.1770}, {0.1780}, {0.1790}, {0.1800}, {0.1810},
+        {0.1820}, {0.1830}, {0.1840}, {0.1850}, {0.1860}, {0.1870}, {0.1880}, {0.1890}, {0.1900}
+    };
 
-	// Assuming all blocks are of the same size and the angle affects the height directly
-	// This is a simplified approach and might need adjustments based on actual requirements
-	for (int i = 0; i < numBlocks; i++)
-	{
-		// Assuming the height of a block is affected by the angle in a linear fashion
-		// This is a placeholder for the actual calculation logic
-		double heightAdjustment = sin(baseAngle); // Adjustment based on the angle
-		double blockHeight = gageBlocks[i].height + heightAdjustment;
-		totalHeight += blockHeight;
-	}
+    int numBlocks = sizeof(gageBlocks) / sizeof(gageBlocks[0]);
 
-	// Print or return the calculated total height
-	printf("Total stack height: %.4lf inches\n", totalHeight);
-}
+    // Define the angle and sine bar length (in radians and inches)
+    double angle = 5.0 * M_PI / 180.0;  // Convert degrees to radians
+    double sineBarLength = 10.0;  // Example sine bar length in inches
 
-int main()
-{
-	initializeGageBlocks(); // Initialize the gage blocks with the specified dimensions
+    // Calculate the height
+    double height = calculateHeight(angle, sineBarLength, gageBlocks, numBlocks);
 
-	double angle;		  // Angle in decimal degrees
-	double sineBarLength; // Length of the sine bar in inches
-	double height;		  // Height in inches
+    // Output the result
+    printf("Calculated height: %.4f inches\n", height);
 
-	printf("Enter the angle (in decimal degrees): ");
-	if (scanf("%lf", &angle) != 1 || angle < 0 || angle > 360)
-	{
-		printf("Invalid angle. Please enter a number between  0 and  360.\n");
-		return 1; // Return an error code
-	}
-
-	printf("Enter the length of the sine bar (in inches): ");
-	scanf("%lf", &sineBarLength);
-
-	// Convert the angle to radians
-	angle = angle * M_PI / 180.0;
-
-	// Calculate the height using the gage blocks
-	// Assuming the calculateStackHeight function is correctly implemented
-	calculateStackHeight(angle, gageBlocks, MAX_BLOCKS);
-
-	// Assuming the calculateStackHeight function updates a global variable or prints the result
-	// For demonstration, let's assume it prints the result directly
-
-	// If need to return the height from the calculateStackHeight function:
-	// height = calculateStackHeight(angle, gageBlocks, MAX_BLOCKS);
-
-	printf("Required gage block stack height: %.4lf inches\n", height);
-
-	return 0;
+    return 0;
 }
