@@ -16,20 +16,24 @@ string longDivision(string number, int divisor) {
     if (divisor == 0) {
         return "Error: Division by zero";
     }
+
     string ans = "";
-    int idx = 0;
+    size_t idx = 0;
     int temp = number[idx] - '0';
-    while (temp < divisor && idx < number.size()) {
-        temp = temp * 10 + (number[++idx] - '0');
+
+    while (temp < divisor && idx < number.size() - 1) {
+        ++idx;
+        temp = temp * 10 + (number[idx] - '0');
     }
-    while (number.size() > idx) {
-        if (divisor == 0) {
-            return "Error: Division by zero";
-        }
+
+    while (idx < number.size()) {
         ans += (temp / divisor) + '0';
-        temp = (temp % divisor) * 10 + number[++idx] - '0';
+        ++idx;
+        if (idx < number.size())
+            temp = (temp % divisor) * 10 + (number[idx] - '0');
     }
-    if (ans.length() == 0) return "0";
+
+    if (ans.empty()) return "0";
     return ans;
 }
 

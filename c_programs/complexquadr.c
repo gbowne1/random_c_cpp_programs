@@ -45,12 +45,40 @@ void calculateRoots(double complex a, double complex b, double complex discrimin
         *root2 = (-b - csqrt(discriminant)) / (2.0 * a);
 }
 
+const char* classifyCoefficients(double complex a, double complex b, double complex c) {
+    int a_real = (cimag(a) == 0.0);
+    int b_real = (cimag(b) == 0.0);
+    int c_real = (cimag(c) == 0.0);
+
+    int a_imag = (creal(a) == 0.0) && (cimag(a) != 0.0);
+    int b_imag = (creal(b) == 0.0) && (cimag(b) != 0.0);
+    int c_imag = (creal(c) == 0.0) && (cimag(c) != 0.0);
+
+    if (a_real && b_real && c_real)
+        return "Real coefficients";
+    if (a_real && b_real && !c_real)
+        return "Real coefficients with complex constant";
+    if (a_real && b_real && c_real) {
+        double disc = creal(cpow(b, 2)) - 4 * creal(a) * creal(c);
+        if (disc >= 0)
+            return "Real coefficients with distinct real roots";
+        else
+            return "Real coefficients with complex roots";
+    }
+    if (a_imag && b_imag && c_imag)
+        return "Purely imaginary coefficients";
+    if (!a_real || !b_real || !c_real)
+        return "Mixed real and imaginary coefficients";
+    return "Unknown type";
+}
+
 int main() {
     double complex a, b, c;
     double complex root1, root2, discriminant;
 
     printf("=== Complex Quadratic Root Calculator ===\n");
-    printf("Please enter complex numbers in the format: real imaginary\n");
+    printf("Please enter each complex coefficient as two space-separated numbers:\n");
+    printf("Format: real_part imaginary_part (e.g., 2 3 for 2 + 3i)\n\n");
 
     // Read coefficients
     readCoefficients("Enter coefficient a (real imaginary): ", &a);
@@ -61,6 +89,9 @@ int main() {
 
     readCoefficients("Enter coefficient b (real imaginary): ", &b);
     readCoefficients("Enter coefficient c (real imaginary): ", &c);
+
+    const char* classification = classifyCoefficients(a, b, c);
+    printf("\nCoefficient Type: %s\n", classification);
 
     // Calculate discriminant and roots
     discriminant = calculateDiscriminant(a, b, c);

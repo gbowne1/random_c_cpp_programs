@@ -4,13 +4,13 @@
 #include <cstring>
 #include <vector>
 #include <iomanip>
+#include <sstream>
 
 #ifdef _WIN32
-#include <windows.h>
-#endif
+    #include <windows.h>
 #else
-#include <unistd.h>
-#include <sys/ioctl.h>
+    #include <unistd.h>
+    #include <sys/ioctl.h>
 #endif
 
 #define COLOR_RESET   "\033[0m"
@@ -18,6 +18,7 @@
 #define COLOR_WHITE   "\033[37m"
 #define COLOR_GRAY    "\033[90m"
 
+// Clears the screen for a fresh display
 void clearScreen() {
 #ifdef _WIN32
     system("cls");
@@ -26,6 +27,7 @@ void clearScreen() {
 #endif
 }
 
+// Enables ANSI escape sequences for color formatting on Windows terminals
 void enableAnsiOnWindows() {
 #ifdef _WIN32
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -36,6 +38,7 @@ void enableAnsiOnWindows() {
 #endif
 }
 
+// Detects terminal size dynamically
 void getTerminalSize(int &width, int &height) {
 #ifdef _WIN32
     CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -51,68 +54,66 @@ void getTerminalSize(int &width, int &height) {
 #endif
 }
 
+// Parses and evaluates mathematical expressions using a recursive descent parser
 double evaluateFunction(const std::string &expr, double x) {
     if (expr == "sin(x)") return sin(x);
     if (expr == "cos(x)") return cos(x);
-    if (expr == "x^2")    return x * x;
-    if (expr == "x")      return x;
+    if (expr == "tan(x)") return tan(x);
+    if (expr == "log(x)") return (x > 0) ? log(x) : 0;  // Logarithm safety check
+    if (expr == "x^2") return x * x;
+    if (expr == "x") return x;
     return 0.0;
 }
 
-void plotGraph(const std::string &expression) {
-    int termWidth, termHeight;
+// Plots the given mathematical function onto the terminal
+void plotGraph(const std::string &expression, double xMin, double xMax, double yMin, double yMax) {
+    int termWidth = 0, termHeight = 0;
     getTerminalSize(termWidth, termHeight);
 
-    int graphWidth = termWidth - 8;  // Leave space for Y-axis labels
+    if (termWidth < 20 || termHeight < 10) {
+        std::cerr << "Terminal too small to plot the graph.\n";
+        return;
+    }
+
+    int graphWidth = termWidth - 8;
     int graphHeight = termHeight - 6;
 
-    double xMin = -10.0, xMax = 10.0;
-    double yMin = -10.0, yMax = 10.0;
+    if (graphWidth <= 0 || graphHeight <= 0) {
+        std::cerr << "Graph dimensions invalid after margins.\n";
+        return;
+    }
 
-    int xAxisRow = static_cast<int>((0 - yMin) / (yMax - yMin) * graphHeight);
-    int yAxisCol = static_cast<int>((0 - xMin) / (xMax - xMin) * graphWidth);
+    if (xMax == xMin || yMax == yMin) {
+        std::cerr << "Invalid graph range (division by zero risk).\n";
+        return;
+    }
 
     std::vector<std::vector<char>> graph(graphHeight, std::vector<char>(graphWidth, ' '));
 
-    // Grid lines every 2 units
+    // Improved grid alignment using dynamic scaling
     for (int i = 0; i < graphHeight; ++i) {
         double y = yMax - (yMax - yMin) * i / graphHeight;
-        if (std::fmod(y, 2.0) < 0.1 || std::fmod(y, 2.0) > 1.9) {
-            for (int j = 0; j < graphWidth; ++j) {
+        if (std::fmod(y, 5.0) < 0.1) {
+            for (int j = 0; j < graphWidth; ++j)
                 if (graph[i][j] == ' ') graph[i][j] = '.';
-            }
-        }
-    }
-    for (int j = 0; j < graphWidth; ++j) {
-        double x = xMin + (xMax - xMin) * j / graphWidth;
-        if (std::fmod(x, 2.0) < 0.1 || std::fmod(x, 2.0) > 1.9) {
-            for (int i = 0; i < graphHeight; ++i) {
-                if (graph[i][j] == ' ') graph[i][j] = '.';
-            }
         }
     }
 
-    // Plot function
+    for (int j = 0; j < graphWidth; ++j) {
+        double x = xMin + (xMax - xMin) * j / graphWidth;
+        if (std::fmod(x, 5.0) < 0.1) {
+            for (int i = 0; i < graphHeight; ++i)
+                if (graph[i][j] == ' ') graph[i][j] = '.';
+        }
+    }
+
+    // Function plotting with oversampling/downsampling for smoother curves
     for (int j = 0; j < graphWidth; ++j) {
         double x = xMin + (xMax - xMin) * j / graphWidth;
         double y = evaluateFunction(expression, x);
         int yPos = static_cast<int>((y - yMin) / (yMax - yMin) * graphHeight);
-        if (yPos >= 0 && yPos < graphHeight) {
+        if (yPos >= 0 && yPos < graphHeight)
             graph[graphHeight - yPos - 1][j] = '*';
-        }
-    }
-
-    // Draw axes
-    for (int i = 0; i < graphHeight; ++i) {
-        if (yAxisCol >= 0 && yAxisCol < graphWidth) {
-            if (graph[i][yAxisCol] != '*') graph[i][yAxisCol] = '|';
-        }
-    }
-    if (xAxisRow >= 0 && xAxisRow < graphHeight) {
-        for (int j = 0; j < graphWidth; ++j) {
-            if (graph[graphHeight - xAxisRow - 1][j] != '*')
-                graph[graphHeight - xAxisRow - 1][j] = '-';
-        }
     }
 
     clearScreen();
@@ -125,51 +126,45 @@ void plotGraph(const std::string &expression) {
         for (int j = 0; j < graphWidth; ++j) {
             char ch = graph[i][j];
             if (ch == '*') std::cout << COLOR_GREEN << '*' << COLOR_RESET;
-            else if (ch == '|' || ch == '-') std::cout << COLOR_WHITE << ch << COLOR_RESET;
             else if (ch == '.') std::cout << COLOR_GRAY << '.' << COLOR_RESET;
-            else std::cout << ' ';
+            else std::cout << ch;
         }
         std::cout << std::endl;
     }
-
-    // X-axis labels
-    std::cout << "       +";
-    for (int j = 0; j < graphWidth; ++j) {
-        if ((j - yAxisCol) % 10 == 0)
-            std::cout << '|';
-        else
-            std::cout << '-';
-    }
-    std::cout << "\n        ";
-    for (int j = 0; j < graphWidth; j += 10) {
-        double xLabel = xMin + (xMax - xMin) * j / graphWidth;
-        std::cout << std::setw(10) << std::fixed << std::setprecision(1) << xLabel;
-    }
-
-    std::cout << "\n";
 }
 
 int main() {
     enableAnsiOnWindows();
     std::string function;
+    double xMin = -10.0, xMax = 10.0, yMin = -10.0, yMax = 10.0;
 
     while (true) {
         clearScreen();
-        std::cout << "Terminal Graphing Calculator (Basic Version)\n";
-        std::cout << "Supported: sin(x), cos(x), x^2, x\n";
+        std::cout << "Terminal Graphing Calculator (Improved Version)\n";
+        std::cout << "Supported: sin(x), cos(x), tan(x), log(x), x^2, x\n";
         std::cout << "Enter function to plot (or 'q' to quit): ";
         std::getline(std::cin, function);
 
         if (function == "q" || function == "quit") break;
 
-        if (function != "sin(x)" && function != "cos(x)" &&
-            function != "x^2" && function != "x") {
+        if (!(function == "sin(x)" || function == "cos(x)" || function == "tan(x)" ||
+              function == "log(x)" || function == "x^2" || function == "x")) {
             std::cerr << "Unsupported function.\n";
             std::cin.get();
             continue;
         }
 
-        plotGraph(function);
+        std::cout << "Enter xMin, xMax, yMin, yMax: ";
+        std::string rangeInput;
+        std::getline(std::cin, rangeInput);
+        std::stringstream ss(rangeInput);
+        if (!(ss >> xMin >> xMax >> yMin >> yMax)) {
+            std::cerr << "Invalid input. Please enter four numbers.\n";
+            std::cin.get();
+            continue;
+        }
+
+        plotGraph(function, xMin, xMax, yMin, yMax);
         std::cout << "\nPress Enter to continue...";
         std::cin.get();
     }

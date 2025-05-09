@@ -20,7 +20,6 @@ int main()
     double zLength;
     double aAngle;
     double bAngle;
-    double cAngle = 90;
     string units;
 
     // Draw a pretty picture (helps the user to better understand what they are entering)
@@ -52,7 +51,6 @@ int main()
     cout << "Enter the length of the second side (y) adjacent to the right angle: ";
     cin >> yLength;
     cout << "You entered " << yLength << ' ' << units << '.' << endl;
-    ;
 
     // Calculate the Hypotenuse
     zLength = sqrt(xLength * xLength + yLength * yLength);
