@@ -157,7 +157,7 @@ int getNumBands(int numParameters)
 	return numParameters - POS_REMINDER_PARAMETER;
 }
 
-char populateColors(char **colors, int numParameters, char **parameters)
+void populateColors(char **colors, int numParameters, char **parameters)
 {
 	for (int i = 0, j = POS_REMINDER_PARAMETER; j < numParameters; i++, j++)
 	{

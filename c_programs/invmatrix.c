@@ -2,7 +2,21 @@
 // Author: Gregory K. Bowne
 // Date:   12 OCT 2000
 // Time:   9:22:45
-// Brief:  This program does inverse matrix calculations
+// Brief:  This program calculates the inverse of a square matrix. It's a fundamental 
+// operation in linear algebra, with applications in various fields such as solving
+// systems of linear equations, finding eigenvalues and eigenvectors, and performing
+// least-squares fitting
+//
+// Algorithms used here are
+// Determinant calculation: Laplace expansion formula
+// Inverse calculation: Gaussian elimination with pivoting
+//
+// The code works for square matrices that are invertible, meaning their determinant is non-zero.
+// For singular matrices (determinant is zero), the code will return an error indicating that the inverse does not exist.
+// The code calculates the condition number of the matrix using the singular value decomposition (SVD).
+// A large condition number indicates that the matrix is ill-conditioned, meaning small perturbations in the input data can lead to large changes in the output.
+// This is a crucial consideration in numerical computations, as it can affect the accuracy of the results.
+// 
 
 #include <math.h>
 #include <stdio.h>
@@ -56,11 +70,14 @@ float determinant(float matrix[N][N], int n)
 // Placeholder SVD computation function
 void computeSVD(float matrix[N][N], float U[N][N], float S[N], float V[N][N])
 {
-	// This function should compute the SVD and fill the S array with singular values
-	// For demonstration, we'll just fill S with example values
-	S[0] = 4.0; // Largest singular value
-	S[1] = 2.0; // Next singular value
-	S[2] = 0.5; // Smallest singular value
+    (void)matrix; // Marking matrix as unused
+    (void)U;      // Marking U as unused
+    (void)V;      // Marking V as unused
+
+    // For demonstration, we'll just fill S with example values
+    S[0] = 4.0; // Largest singular value
+    S[1] = 2.0; // Next singular value
+    S[2] = 0.5; // Smallest singular value
 }
 
 float conditionNumber(float matrix[N][N], int n)

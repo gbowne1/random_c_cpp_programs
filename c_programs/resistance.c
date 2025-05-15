@@ -2,10 +2,11 @@
 // Author: Gregory K. Bowne
 // Date:   17 MAY 2021
 // Time:   11:34:38
-// Brief:  This program calculates series and parallel resitance.
+// Brief:  This program calculates series and parallel resistance.
 
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
 //Function to calculate the max current flowing trough a resistor
 float calcMaxCurrent(float resistor, float wattage)
 {
@@ -42,7 +43,12 @@ int main()
 	printf("Enter the number of resistors: ");
 	scanf("%d", &count);
 
-	float resistors[count];
+	float *resistors = (float *)malloc(count * sizeof(float));
+	if (resistors == NULL)
+	{
+		printf("Memory allocation failed.\n");
+		return 1;
+	}
 	for (int i = 0; i < count; i++)
 	{
 		printf("Enter the resistance of resistor %d: ", i + 1);
@@ -51,9 +57,12 @@ int main()
 
 	float series = calcSeriesResistance(resistors, count);
 	float parallel = calcParallelResistance(resistors, count);
+	free(resistors);
 
 	printf("Total resistance in series: %.2f ohms\n", series);
 	printf("Total resistance in parallel: %.2f ohms\n", parallel);
+
+	return 0;
 
 	return 0;
 }

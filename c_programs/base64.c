@@ -87,24 +87,42 @@ static unsigned char *base64_decode(const char *input, size_t *output_length) {
 
 int main() {
     init_base64_index();
-    const char *original = "Hello, Base64!";
-    char *encoded = base64_encode((const unsigned char *)original, strlen(original));
-    if (!encoded) {
-        fprintf(stderr, "Failed to encode\n");
-        return 1;
-    }
-    printf("Encoded: %s\n", encoded);
+    char choice;
+    char input[1024];
+    
+    printf("Choose operation (e for encode, d for decode): ");
+    scanf(" %c", &choice);
+    getchar();  // Consume newline character left by scanf
 
-    size_t decoded_length;
-    unsigned char *decoded = base64_decode(encoded, &decoded_length);
-    if (!decoded) {
-        fprintf(stderr, "Failed to decode\n");
+    if (choice == 'e') {
+        printf("Enter a numerical string to encode in Base64: ");
+        fgets(input, sizeof(input), stdin);
+        input[strcspn(input, "\n")] = 0;  // Remove newline character from input
+
+        char *encoded = base64_encode((const unsigned char *)input, strlen(input));
+        if (!encoded) {
+            fprintf(stderr, "Failed to encode\n");
+            return 1;
+        }
+        printf("Encoded: %s\n", encoded);
         free(encoded);
+    } else if (choice == 'd') {
+        printf("Enter Base64 string to decode: ");
+        fgets(input, sizeof(input), stdin);
+        input[strcspn(input, "\n")] = 0;  // Remove newline character from input
+
+        size_t decoded_length;
+        unsigned char *decoded = base64_decode(input, &decoded_length);
+        if (!decoded) {
+            fprintf(stderr, "Failed to decode\n");
+            return 1;
+        }
+        printf("Decoded: %.*s\n", (int)decoded_length, decoded);
+        free(decoded);
+    } else {
+        fprintf(stderr, "Invalid choice\n");
         return 1;
     }
-    printf("Decoded: %.*s\n", (int)decoded_length, decoded);
 
-    free(encoded);
-    free(decoded);
     return 0;
 }

@@ -5,6 +5,8 @@
 // Brief:  This program calculates This program calculates the GCD of three pairs
 // of numbers: (10, 15), (35, 10), and (31, 2). You can modify the numbers as per
 // your requirement. The gcd() function implements the Euclidean algorithm recursively.
+//
+// This is not valid code in C89/C90. Compile this with C99 or late.
 
 #include <stdio.h>
 

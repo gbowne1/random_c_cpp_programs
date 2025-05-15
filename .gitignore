@@ -61,3 +61,6 @@ cpp_programs/build/**/*
 .vscode/browse.vc.db
 .vscode/browse.vc.db-shm
 .vscode/browse.vc.db-wal
+
+build/
+/build

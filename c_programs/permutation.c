@@ -8,7 +8,7 @@
 #include <string.h>
 
 // Function to swap two characters
-inline void swap(char *x, char *y) {
+void swap(char *x, char *y) {
     char temp = *x;
     *x = *y;
     *y = temp;

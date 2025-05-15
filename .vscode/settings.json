@@ -146,7 +146,7 @@
 	// Controls the width of the cursor when `editor.cursorStyle` is set to `line`.
 	"editor.cursorWidth": 0,
 	// Controls whether inline color decorations should be shown using the default document color provider
-	"editor.defaultColorDecorators": false,
+	"editor.defaultColorDecorators": "never",
 	// Defines a default folding range provider that takes precedence over all other folding range providers. Must be the identifier of an extension contributing a folding range provider.
 	"editor.defaultFoldingRangeProvider": null,
 	// Defines a default formatter which takes precedence over all other formatter settings. Must be the identifier of an extension contributing a formatter.
@@ -1266,73 +1266,15 @@
 	// Files
 	// Configure glob patterns of file associations to languages.
 	"files.associations": {
-		"*.js": "javascript",
-		"*.jsx": "javascriptreact",
-		"*.c": "c",
-		"*.h": "c",
+		".fantomasignore": "ignore",
 		"*.html": "html",
-		"*.php": "php",
-		"*.py": "python",
-		"*.cpp": "cpp",
-		"*.hpp": "cpp",
 		"*.asm": "asm-intel-x86-generic",
-		"*.json": "json",
-		"*.f": "FortranFreeForm",
-		"iostream": "cpp",
-		"variant": "cpp",
-		"cctype": "cpp",
-		"clocale": "cpp",
-		"cmath": "cpp",
-		"cstdarg": "cpp",
-		"cstddef": "cpp",
-		"cstdio": "cpp",
-		"cstdlib": "cpp",
-		"cstring": "cpp",
-		"ctime": "cpp",
-		"cwchar": "cpp",
-		"cwctype": "cpp",
-		"array": "cpp",
-		"atomic": "cpp",
-		"*.tcc": "cpp",
-		"chrono": "cpp",
-		"cinttypes": "cpp",
-		"complex": "cpp",
-		"cstdint": "cpp",
-		"deque": "cpp",
-		"list": "cpp",
-		"unordered_map": "cpp",
-		"vector": "cpp",
-		"exception": "cpp",
-		"algorithm": "cpp",
-		"functional": "cpp",
-		"iterator": "cpp",
-		"map": "cpp",
-		"memory": "cpp",
-		"memory_resource": "cpp",
-		"numeric": "cpp",
-		"optional": "cpp",
-		"random": "cpp",
-		"ratio": "cpp",
-		"set": "cpp",
-		"string": "cpp",
-		"string_view": "cpp",
-		"system_error": "cpp",
-		"tuple": "cpp",
-		"type_traits": "cpp",
-		"utility": "cpp",
-		"fstream": "cpp",
-		"initializer_list": "cpp",
-		"iomanip": "cpp",
-		"iosfwd": "cpp",
-		"istream": "cpp",
-		"limits": "cpp",
-		"new": "cpp",
-		"ostream": "cpp",
-		"sstream": "cpp",
-		"stdexcept": "cpp",
-		"streambuf": "cpp",
-		"thread": "cpp",
-		"typeinfo": "cpp"
+		"*.py": "python",
+		"stdio.h": "c",
+		"stdlib.h": "c",
+		"inet.h": "c",
+		"stdbool.h": "c",
+		"iostream": "cpp"
 	},
 	// When enabled, the editor will attempt to guess the character set encoding when opening files. This setting can also be configured per language. Note, this setting is not respected by text search. Only `files.encoding` is respected.
 	"files.autoGuessEncoding": false,
@@ -1362,7 +1304,7 @@
 	//  - \n: LF
 	//  - \r\n: CRLF
 	//  - auto: Uses operating system specific end of line character.
-	"files.eol": "\n",
+	"files.eol": "auto",
 	// Configure glob patterns for excluding files and folders. For example, the File Explorer decides which files and folders to show or hide based on this setting. Refer to the `search.exclude` setting to define search-specific excludes.
 	"files.exclude": {
 		"**/.git": true,
@@ -3782,5 +3724,7 @@
 	"references.preferredLocation": "peek",
 	// Simple Browser
 	// Enable/disable the floating indicator that shows when focused in the simple browser.
-	"simpleBrowser.focusLockIndicator.enabled": true
+	"simpleBrowser.focusLockIndicator.enabled": true,
+	"testing.automaticallyOpenTestResults": "openOnTestStart",
+	"C_Cpp.default.compilerPath": "C:/msys64/ucrt64/bin/g++.exe"
 }

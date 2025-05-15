@@ -5,10 +5,10 @@
 // Brief:  This program calculates complex numbers
 
 #include <stdio.h>      /* Standard Library of Input and Output */
+#define I _Complex_I    /* Ensure compatibility with imaginary unit */
 #include <complex.h>    /* Standard Library of Complex Numbers */
 
 int main() {
-
     double complex z1 = 1.0 + 3.0 * I;
     double complex z2 = 1.0 - 4.0 * I;
 

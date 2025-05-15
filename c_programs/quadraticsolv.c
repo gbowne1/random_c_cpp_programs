@@ -1,3 +1,10 @@
+// Filename: quadraticsolv.c
+// Author: Gregory K. Bowne 
+// Date: 12 NOV 2024
+// Brief: This code is a simple C program for calculating the roots of a quadratic equation of the form:
+// ax2+bx+c=0 and takes 3 coefficients as inputs.
+// It calculates the discriminant (b2−4acb^2 - 4ac) to determine the nature of the roots
+
 #include <stdio.h>
 #include <math.h>
 

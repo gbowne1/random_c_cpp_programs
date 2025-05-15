@@ -14,6 +14,12 @@
 // Compute the barycentric coordinates (u, v, w) for point P using the following formula:
 // This method computes the barycentric coordinates directly from the dot products of the vectors and the point, without the need for
 // intermediate calculations or any specific algorithms.
+// 
+// This needs to be compiled/built for C99 and later. It will not work with C89.
+//
+// You will see "Enter the coordinates of point A (x y z):" and you should enter something like
+// 1.0 0.0 0.0
+
 
 #include <assert.h>
 #include <math.h>
