@@ -58,10 +58,19 @@ public:
     }
 
 private:
+
+    static void skipWhitespace(std::istream &is)
+    {
+        while (std::isspace(is.peek()))
+        {
+            is.get();
+        }
+    }
+
     static std::shared_ptr<JsonValue> parseValue(std::istream &is)
     {
-        char c;
-        is >> c;
+        skipWhitespace(is);
+        char c = is.get();
 
         if (c == '{')
             return std::make_shared<JsonValue>(parseObject(is));
@@ -85,8 +94,8 @@ private:
     static JsonObject parseObject(std::istream &is)
     {
         JsonObject obj;
-        char c;
-        is >> c;
+        skipWhitespace(is);
+        char c = is.get();
         if (c == '}')
             return obj;
         is.unget();
@@ -94,16 +103,19 @@ private:
         while (true)
         {
             auto key = parseString(is);
-            is >> c;
+            skipWhitespace(is);
+            char c = is.get();
             if (c != ':')
-                throw std::runtime_error("Expected ':'");
+                throw std::runtime_error("Expected ':' after key in object, got '" + std::string(1, c) + "'");
+
             obj[key] = parseValue(is);
 
-            is >> c;
+            skipWhitespace(is);
+            c = is.get();
             if (c == '}')
                 break;
             if (c != ',')
-                throw std::runtime_error("Expected ',' or '}'");
+                throw std::runtime_error("Expected ',' or '}' in object, got '" + std::string(1, c) + "'");
         }
         return obj;
     }
@@ -111,8 +123,8 @@ private:
     static JsonArray parseArray(std::istream &is)
     {
         JsonArray arr;
-        char c;
-        is >> c;
+        skipWhitespace(is);
+        char c = is.get();
         if (c == ']')
             return arr;
         is.unget();
@@ -120,11 +132,12 @@ private:
         while (true)
         {
             arr.push_back(parseValue(is));
-            is >> c;
+            skipWhitespace(is);
+            char c = is.get();
             if (c == ']')
                 break;
             if (c != ',')
-                throw std::runtime_error("Expected ',' or ']'");
+                throw std::runtime_error("Expected ',' or ']' in array, got '" + std::string(1, c) + "'");
         }
         return arr;
     }
@@ -160,6 +173,8 @@ private:
                 case 't':
                     str += '\t';
                     break;
+                case 'u':
+                    throw std::runtime_error("Unicode escape sequences (\\uXXXX) are not supported.");
                 default:
                     throw std::runtime_error("Invalid escape sequence");
                 }
@@ -199,11 +214,12 @@ private:
     {
         std::string numStr;
         char c;
-        while (is.get(c) && (std::isdigit(c) || c == '.' || c == 'e' || c == 'E' || c == '+' || c == '-'))
+        while (is.peek() != EOF && (std::isdigit(is.peek()) || is.peek() == '.' || is.peek() == 'e' ||
+                            is.peek() == 'E' || is.peek() == '+' || is.peek() == '-'))
         {
+            is.get(c);
             numStr += c;
         }
-        is.unget();
         return std::stod(numStr);
     }
 };

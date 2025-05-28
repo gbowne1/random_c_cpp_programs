@@ -58,8 +58,13 @@ void getTerminalSize(int &width, int &height) {
 double evaluateFunction(const std::string &expr, double x) {
     if (expr == "sin(x)") return sin(x);
     if (expr == "cos(x)") return cos(x);
-    if (expr == "tan(x)") return tan(x);
-    if (expr == "log(x)") return (x > 0) ? log(x) : 0;  // Logarithm safety check
+    if (expr == "tan(x)") {
+        double c = cos(x);
+        if (std::fabs(c) < 1e-6) return std::numeric_limits<double>::quiet_NaN(); // Avoid vertical asymptote
+        return tan(x);
+    }
+    if (expr == "log(x)") return (x > 0) ? log(x) : std::numeric_limits<double>::quiet_NaN();
+    if (expr == "x^3") return x * x * x;
     if (expr == "x^2") return x * x;
     if (expr == "x") return x;
     return 0.0;
@@ -90,7 +95,16 @@ void plotGraph(const std::string &expression, double xMin, double xMax, double y
 
     std::vector<std::vector<char>> graph(graphHeight, std::vector<char>(graphWidth, ' '));
 
-    // Improved grid alignment using dynamic scaling
+    if (expression == "tan(x)") {
+        for (int j = 0; j < graphWidth; ++j) {
+            double x = xMin + (xMax - xMin) * j / graphWidth;
+            if (std::fabs(std::cos(x)) < 1e-6) {  // Detect vertical asymptotes
+                for (int i = 0; i < graphHeight; ++i)
+                    graph[i][j] = ':';  // Or '|', or leave as is
+            }
+        }
+    }
+
     for (int i = 0; i < graphHeight; ++i) {
         double y = yMax - (yMax - yMin) * i / graphHeight;
         if (std::fmod(y, 5.0) < 0.1) {
@@ -101,16 +115,11 @@ void plotGraph(const std::string &expression, double xMin, double xMax, double y
 
     for (int j = 0; j < graphWidth; ++j) {
         double x = xMin + (xMax - xMin) * j / graphWidth;
-        if (std::fmod(x, 5.0) < 0.1) {
-            for (int i = 0; i < graphHeight; ++i)
-                if (graph[i][j] == ' ') graph[i][j] = '.';
-        }
-    }
-
-    // Function plotting with oversampling/downsampling for smoother curves
-    for (int j = 0; j < graphWidth; ++j) {
-        double x = xMin + (xMax - xMin) * j / graphWidth;
         double y = evaluateFunction(expression, x);
+
+        // Skip invalid y values (NaN or Inf)
+        if (std::isnan(y) || std::isinf(y)) continue;
+
         int yPos = static_cast<int>((y - yMin) / (yMax - yMin) * graphHeight);
         if (yPos >= 0 && yPos < graphHeight)
             graph[graphHeight - yPos - 1][j] = '*';
@@ -127,6 +136,7 @@ void plotGraph(const std::string &expression, double xMin, double xMax, double y
             char ch = graph[i][j];
             if (ch == '*') std::cout << COLOR_GREEN << '*' << COLOR_RESET;
             else if (ch == '.') std::cout << COLOR_GRAY << '.' << COLOR_RESET;
+            else if (ch == ':') std::cout << COLOR_GRAY << '|' << COLOR_RESET;
             else std::cout << ch;
         }
         std::cout << std::endl;
@@ -147,8 +157,8 @@ int main() {
 
         if (function == "q" || function == "quit") break;
 
-        if (!(function == "sin(x)" || function == "cos(x)" || function == "tan(x)" ||
-              function == "log(x)" || function == "x^2" || function == "x")) {
+       if (!(function == "sin(x)" || function == "cos(x)" || function == "tan(x)" ||
+        function == "log(x)" || function == "x^2" || function == "x" || function == "x^3")) {
             std::cerr << "Unsupported function.\n";
             std::cin.get();
             continue;
