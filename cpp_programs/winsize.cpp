@@ -50,7 +50,8 @@ void setConsoleSize(int &width, int &height)
     width = consoleInfo.dwSize.X;
     height = consoleInfo.dwSize.Y;
 #else
-    struct winsize size;
+
+struct winsize size;
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
     width = size.ws_col;
     height = size.ws_row;

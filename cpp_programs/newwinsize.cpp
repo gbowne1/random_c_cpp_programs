@@ -1,45 +1,59 @@
-// File: newwinsize.cpp
-// Author: Extended from Gregory K. Bowne's original winsize.cpp
-// Date: December 23, 2024
-// Brief: Implementation of terminal size detection and border drawing
+// File: combined_winsize.cpp
+// Author: Gregory K. Bowne (extended)
+// Date: June 22, 2025
+// Brief: This program calculates the console size, clears the screen, and displays a border with system information.
 
-#include "newwinsize.hpp"
+#include <iostream>
+#include <string>
+#include <cstdlib>
 #include <stdexcept>
 
+// Platform-specific includes
+#ifdef _WIN32
+    #include <windows.h>
+#else
+    #include <sys/ioctl.h>
+    #include <unistd.h>
+#endif
+
+struct WindowSize {
+    int width;
+    int height;
+    WindowSize(int w = 0, int h = 0) : width(w), height(h) {}
+};
+
 void clearScreen() {
-    #if defined(_WIN32) || defined(_WIN64)
-        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-        COORD screenPos = {0, 0};
-        DWORD writtenChars;
-        CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
-        if (GetConsoleScreenBufferInfo(hConsole, &consoleInfo)) {
-            FillConsoleOutputCharacter(hConsole, ' ', 
-                consoleInfo.dwSize.X * consoleInfo.dwSize.Y, screenPos, &writtenChars);
-            SetConsoleCursorPosition(hConsole, screenPos);
-        }
-    #else
-        std::cout << "\033[2J\033[1;1H" << std::flush;
-    #endif
+#ifdef _WIN32
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    COORD screenPos = {0, 0};
+    DWORD writtenChars;
+    CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
+    if (GetConsoleScreenBufferInfo(hConsole, &consoleInfo)) {
+        FillConsoleOutputCharacter(hConsole, ' ', consoleInfo.dwSize.X * consoleInfo.dwSize.Y, screenPos, &writtenChars);
+        SetConsoleCursorPosition(hConsole, screenPos);
+    }
+#else
+    std::cout << "\033[2J\033[1;1H" << std::flush; // ANSI escape code to clear screen on Unix-like systems
+#endif
 }
 
 WindowSize getWindowSize() {
     WindowSize size;
 
-    #if defined(_WIN32) || defined(_WIN64)
-        CONSOLE_SCREEN_BUFFER_INFO csbi;
-        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-        if (GetConsoleScreenBufferInfo(hConsole, &csbi)) {
-            size.width = csbi.srWindow.Right - csbi.srWindow.Left + 1;
-            size.height = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
-        }
-    #elif defined(__APPLE__) || defined(__FreeBSD__) || defined(__NetBSD__) || \
-          defined(__OpenBSD__) || defined(__linux__) || defined(__sun) || defined(__sun__)
-        struct winsize w;
-        if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == 0) {
-            size.width = w.ws_col;
-            size.height = w.ws_row;
-        }
-    #endif
+#ifdef _WIN32
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (GetConsoleScreenBufferInfo(hConsole, &csbi)) {
+        size.width = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+        size.height = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+    }
+#else
+    struct winsize w;
+    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == 0) {
+        size.width = w.ws_col;
+        size.height = w.ws_row;
+    }
+#endif
 
     if (size.width <= 0) size.width = 80;
     if (size.height <= 0) size.height = 24;
@@ -84,37 +98,19 @@ void printCentered(const std::string& text, int width) {
 
 std::string getSystemInfo() {
     std::string platform;
-    #if defined(_WIN32) || defined(_WIN64)
-        #ifdef _WIN64
-            platform = "Windows 64-bit";
-        #else
-            platform = "Windows 32-bit";
-        #endif
-    #elif defined(__APPLE__)
-        platform = "Apple/Darwin/OSX";
-    #elif defined(__FreeBSD__)
-        platform = "FreeBSD";
-    #elif defined(__NetBSD__)
-        platform = "NetBSD";
-    #elif defined(__OpenBSD__)
-        platform = "OpenBSD";
-    #elif defined(__sun) || defined(__sun__)
-        platform = "Solaris/SunOS";
-    #elif defined(__linux__)
-        platform = "Linux";
+#ifdef _WIN32
+    #ifdef _WIN64
+        platform = "Windows 64-bit";
     #else
-        platform = "Unknown Platform";
+        platform = "Windows 32-bit";
     #endif
-
-    #if defined(__x86_64__) || defined(_M_X64)
-        platform += " (64-bit x86)";
-    #elif defined(__aarch64__)
-        platform += " (64-bit ARM)";
-    #elif defined(__arm__)
-        platform += " (32-bit ARM)";
-    #elif defined(__i386) || defined(_M_IX86)
-        platform += " (32-bit x86)";
-    #endif
+#elif defined(__APPLE__)
+    platform = "Apple/Darwin/OSX";
+#elif defined(__linux__)
+    platform = "Linux";
+#else
+    platform = "Unknown Platform";
+#endif
 
     return platform;
 }
@@ -125,18 +121,6 @@ int main() {
         
         auto size = getWindowSize();
         printBorder(size);
-        
-        // Calculate center position for text
-        int centerY = size.height / 2;
-        int currentLine = 1;
-        
-        // Move to desired position for text
-        while (currentLine < centerY - 2) {
-            currentLine++;
-            std::cout << "X";
-            for (int i = 0; i < size.width - 2; i++) std::cout << " ";
-            std::cout << "X\n";
-        }
         
         // Print information
         std::string info = "Window Information:";
@@ -150,10 +134,11 @@ int main() {
         printCentered(system, size.width);
         
         // Fill remaining space
-        while (currentLine < size.height - 1) {
-            currentLine++;
+        for (int i = 0; i < size.height - 4; i++) { // -4 to account for the borders and info lines
             std::cout << "X";
-            for (int i = 0; i < size.width - 2; i++) std::cout << " ";
+            for (int j = 0; j < size.width - 2; j++) {
+                std::cout << " ";
+            }
             std::cout << "X\n";
         }
         

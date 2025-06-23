@@ -5,6 +5,12 @@
 // Brief:  This program calculates voltage using Ohm's Law.
 
 #include <stdio.h>
+#include <stdlib.h>
+
+void clear_input_buffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
 
 int main()
 {

@@ -1,6 +1,3 @@
-// Date: 10 SEPT 2023
-// Brief: Linux x64 hangman using dictionary 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,16 +6,18 @@
 
 #define MAX_TRIES 6
 #define MAX_WORD_LENGTH 20
-#define DICTIONARY_FILE "/usr/share/dict/words"
+#define DEFAULT_DICTIONARY_FILE "words.txt" // Change this to a more portable path
 
 // Function prototypes
 void displayWord(const char *word, const int *guessed);
 void displayHangman(int tries);
 const char *selectRandomWord(const char *filePath, char *wordBuffer);
 
-int main() {
+int main(int argc, char *argv[]) {
     char word[MAX_WORD_LENGTH];
-    if (!selectRandomWord(DICTIONARY_FILE, word)) {
+    const char *dictionaryFile = (argc > 1) ? argv[1] : DEFAULT_DICTIONARY_FILE;
+
+    if (!selectRandomWord(dictionaryFile, word)) {
         fprintf(stderr, "Error: Could not load a word from the dictionary file.\n");
         return 1;
     }
@@ -85,7 +84,7 @@ void displayHangman(int tries) {
         "  +---+\n  |   |\n  O   |\n      |\n      |\n      |\n=========",
         "  +---+\n  |   |\n  O   |\n  |   |\n      |\n      |\n=========",
         "  +---+\n  |   |\n  O   |\n /|   |\n      |\n      |\n=========",
-        "  +---+\n  |   |\n  O   |\n /|\\  |\n      |\n      |\n=========",
+        "  +---+\n  |   |\n  O   |\n /|\\  |\n      |\n      |\n========="
         "  +---+\n  |   |\n  O   |\n /|\\  |\n /     |\n      |\n=========",
         "  +---+\n  |   |\n  O   |\n /|\\  |\n / \\   |\n      |\n========="
     };
@@ -100,7 +99,7 @@ const char *selectRandomWord(const char *filePath, char *wordBuffer) {
     }
 
     char **words = malloc(100000 * sizeof(char *));
-    char line[MAX_WORD_LENGTH]; // Declare the line variable
+    char line[MAX_WORD_LENGTH];
     if (!words) {
         fclose(file);
         return NULL;
@@ -112,12 +111,12 @@ const char *selectRandomWord(const char *filePath, char *wordBuffer) {
         if (strlen(line) >= MAX_WORD_LENGTH) {
             continue; // Skip overly long words
         }
-        words[wordCount++] = strdup(line);
+        words[wordCount++] = strdup(line); // Duplicate the line
     }
     fclose(file);
 
     if (wordCount == 0) {
-        free(words);  // Ensure that you free the words array even if no words are read
+        free(words);  // Free the words array if no words are read
         return NULL;
     }
 
@@ -131,3 +130,4 @@ const char *selectRandomWord(const char *filePath, char *wordBuffer) {
     free(words);  // Free the words array after freeing individual words
     return wordBuffer;
 }
+

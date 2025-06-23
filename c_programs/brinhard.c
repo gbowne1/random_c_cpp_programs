@@ -81,6 +81,7 @@ void print_summary(double P, double D, double d, double HB) {
  * @brief Validates inputs against ASTM E10 / ISO 6506 recommended limits.
  */
 void validate_against_standards(double P, double D, double d) {
+    (void)P;
     double d_D_ratio = d / D;
     printf("\n--- Standards Validation (ASTM E10 / ISO 6506) ---\n");
     printf("Indentation to Ball Ratio (d/D): %.5f\n", d_D_ratio);

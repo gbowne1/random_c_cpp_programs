@@ -89,6 +89,14 @@ int sockfd = -1;
 char buffer[BUFFER_SIZE];
 
 int main(int argc, char *argv[]) {
+#ifdef _WIN32
+    WSADATA wsaData;
+    int wsaerr = WSAStartup(MAKEWORD(2, 2), &wsaData);
+    if (wsaerr != 0) {
+        fprintf(stderr, "WSAStartup failed with error: %d\n", wsaerr);
+        return EXIT_FAILURE;
+    }
+#endif
     struct addrinfo hints, *res, *p;
 
     if (argc < 2) {
@@ -161,5 +169,10 @@ int main(int argc, char *argv[]) {
 
     freeaddrinfo(res);
     close(sockfd);
+
+#ifdef _WIN32
+    WSACleanup(); // Clean up Winsock
+#endif
+
     return EXIT_SUCCESS;
 }
