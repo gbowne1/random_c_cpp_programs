@@ -5,13 +5,29 @@
 #include <ctype.h>
 
 #define MAX_TRIES 6
-#define MAX_WORD_LENGTH 20
-#define DEFAULT_DICTIONARY_FILE "words.txt" // Change this to a more portable path
+#define MAX_WORD_LENGTH 46 // Adjusted to accommodate words up to 45 characters plus null terminator
+#define MAX_WORDS 100000   // Maximum number of words to read from the dictionary
+#define DEFAULT_DICTIONARY_FILE "words.txt" // Fallback dictionary file
 
 // Function prototypes
 void displayWord(const char *word, const int *guessed);
 void displayHangman(int tries);
 const char *selectRandomWord(const char *filePath, char *wordBuffer);
+
+// Function to get the dictionary file path based on the OS
+const char *getDictionaryFilePath() {
+#ifdef _WIN32
+    return "C:\\path\\to\\your\\custom\\dictionary.txt"; // Windows custom path
+#elif __linux__
+    return "/usr/share/dict/words"; // Common Linux dictionary path
+#elif __APPLE__
+    return "/usr/share/dict/words"; // Common macOS dictionary path
+#elif __FreeBSD__ || __NetBSD__ || __OpenBSD__
+    return "/usr/share/dict/words"; // Common BSD dictionary path
+#else
+    return DEFAULT_DICTIONARY_FILE; // Fallback for other systems
+#endif
+}
 
 int main(int argc, char *argv[]) {
     char word[MAX_WORD_LENGTH];
@@ -84,7 +100,7 @@ void displayHangman(int tries) {
         "  +---+\n  |   |\n  O   |\n      |\n      |\n      |\n=========",
         "  +---+\n  |   |\n  O   |\n  |   |\n      |\n      |\n=========",
         "  +---+\n  |   |\n  O   |\n /|   |\n      |\n      |\n=========",
-        "  +---+\n  |   |\n  O   |\n /|\\  |\n      |\n      |\n========="
+        "  +---+\n  |   |\n  O   |\n /|\\  |\n      |\n      |\n=========",
         "  +---+\n  |   |\n  O   |\n /|\\  |\n /     |\n      |\n=========",
         "  +---+\n  |   |\n  O   |\n /|\\  |\n / \\   |\n      |\n========="
     };
@@ -95,28 +111,43 @@ void displayHangman(int tries) {
 const char *selectRandomWord(const char *filePath, char *wordBuffer) {
     FILE *file = fopen(filePath, "r");
     if (!file) {
+        fprintf(stderr, "Error: Could not open dictionary file: %s\n", filePath);
         return NULL;
     }
 
-    char **words = malloc(100000 * sizeof(char *));
-    char line[MAX_WORD_LENGTH];
+    char **words = malloc(MAX_WORDS * sizeof(char *));
     if (!words) {
         fclose(file);
+        fprintf(stderr, "Error: Memory allocation failed for words array.\n");
         return NULL;
     }
+
+    char line[46]; // Adjusted to 46 to accommodate words up to 45 characters plus null terminator
     int wordCount = 0;
 
     while (fgets(line, sizeof(line), file)) {
         line[strcspn(line, "\n")] = '\0'; // Remove newline character
-        if (strlen(line) >= MAX_WORD_LENGTH) {
+        if (strlen(line) >= 45) {
             continue; // Skip overly long words
         }
-        words[wordCount++] = strdup(line); // Duplicate the line
+        char *wordCopy = strdup(line); // Duplicate the line
+        if (!wordCopy) {
+            // Free previously allocated words before returning NULL
+            for (int i = 0; i < wordCount; i++) {
+                free(words[i]);
+            }
+            free(words);
+            fclose(file);
+            fprintf(stderr, "Error: Memory allocation failed for word: %s\n", line);
+            return NULL;
+        }
+        words[wordCount++] = wordCopy; // Store the duplicated word
     }
     fclose(file);
 
     if (wordCount == 0) {
         free(words);  // Free the words array if no words are read
+        fprintf(stderr, "Error: No valid words found in the dictionary file.\n");
         return NULL;
     }
 
@@ -130,4 +161,6 @@ const char *selectRandomWord(const char *filePath, char *wordBuffer) {
     free(words);  // Free the words array after freeing individual words
     return wordBuffer;
 }
+
+
 

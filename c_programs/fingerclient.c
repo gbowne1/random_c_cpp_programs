@@ -89,6 +89,10 @@ int sockfd = -1;
 char buffer[BUFFER_SIZE];
 
 int main(int argc, char *argv[]) {
+    int sockfd = -1;
+    char buffer[BUFFER_SIZE];
+    struct addrinfo hints, *res, *p;
+
 #ifdef _WIN32
     WSADATA wsaData;
     int wsaerr = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -97,7 +101,6 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 #endif
-    struct addrinfo hints, *res, *p;
 
     if (argc < 2) {
         fprintf(stderr, "Usage: %s hostname\n", argv[0]);
@@ -112,7 +115,6 @@ int main(int argc, char *argv[]) {
     int gai_status = getaddrinfo(argv[1], NULL, &hints, &res);
     if (gai_status != 0) {
         fprintf(stderr, "Error: getaddrinfo failed: %s\n", gai_strerror(gai_status));
-        freeaddrinfo(res);
         exit(EXIT_FAILURE);
     }
 
@@ -131,28 +133,30 @@ int main(int argc, char *argv[]) {
         close(sockfd); // Clean up on failure
     }
 
+    freeaddrinfo(res); // Free the addrinfo structure
+
     if (p == NULL) {
         fprintf(stderr, "Error: Unable to connect to host: %s\n", argv[1]);
-        freeaddrinfo(res);
         exit(EXIT_FAILURE);
     }
 
     // Query input
     printf("Please enter the username to query: ");
     if (fgets(buffer, sizeof(buffer), stdin) == NULL) {
+        close(sockfd); // Ensure socket is closed
         error("Error reading input");
     }
     size_t len = strcspn(buffer, "\n");
     if (len == BUFFER_SIZE - 1 && buffer[len] != '\n') {
+        close(sockfd); // Ensure socket is closed
         fprintf(stderr, "Error: Username too long\n");
-        close(sockfd);
-        freeaddrinfo(res);
         exit(EXIT_FAILURE);
     }
     buffer[len] = '\0'; // Remove trailing newline
 
     // Send query to server
     if (send(sockfd, buffer, strlen(buffer), 0) < 0) {
+        close(sockfd); // Ensure socket is closed
         error("Error sending to socket");
     }
 
@@ -160,6 +164,7 @@ int main(int argc, char *argv[]) {
     memset(buffer, 0, BUFFER_SIZE);
     int n = recv(sockfd, buffer, BUFFER_SIZE - 1, 0);
     if (n < 0) {
+        close(sockfd); // Ensure socket is closed
         error("Error receiving from socket");
     }
     buffer[n] = '\0'; // Ensure null-termination
@@ -167,7 +172,7 @@ int main(int argc, char *argv[]) {
     // Print the response
     printf("%s\n", buffer);
 
-    freeaddrinfo(res);
+    // Close the socket before exiting
     close(sockfd);
 
 #ifdef _WIN32
