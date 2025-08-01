@@ -1,7 +1,0 @@
-{
-  "row1": ["Name", "Age", "Occupation"],
-  "row2": ["Alice", "30", "Engineer"],
-  "row3": ["Bob", "25", "Designer"],
-  "row4": ["Charlie", "", "Teacher"],
-  "row5": ["David", "40"]
-}
