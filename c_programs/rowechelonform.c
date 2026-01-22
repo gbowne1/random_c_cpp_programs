@@ -69,6 +69,36 @@ void deallocateMatrix(float **matrix, int rowCount) {
     free(matrix);
 }
 
+void backSubstitution(float **matrix, int rowCount, int colCount) {
+    // For a system Ax = B, colCount must be rowCount + 1
+    if (colCount != rowCount + 1) {
+        printf("\nBack-substitution requires an augmented matrix (Rows x Rows+1).\n");
+        return;
+    }
+
+    float *solutions = (float *)malloc(rowCount * sizeof(float));
+    
+    for (int i = rowCount - 1; i >= 0; i--) {
+        // Start with the augmented constant (the last column)
+        solutions[i] = matrix[i][colCount - 1];
+
+        // Subtract the already solved variables multiplied by their coefficients
+        for (int j = i + 1; j < rowCount; j++) {
+            solutions[i] -= matrix[i][j] * solutions[j];
+        }
+        
+        // Since we normalized pivots to 1 in REF, 
+        // we don't need to divide by the coefficient here.
+    }
+
+    printf("\nSolutions to the system:\n");
+    for (int i = 0; i < rowCount; i++) {
+        printf("x%d = %.2f\n", i + 1, solutions[i]);
+    }
+
+    free(solutions);
+}
+
 int main() {
     int rowCount, colCount;
     printf("Enter the number of rows and columns: ");
