@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 // Function to swap two rows of the matrix
 void swapRows(float **matrix, int row1, int row2, int colCount) {
@@ -19,10 +20,14 @@ void swapRows(float **matrix, int row1, int row2, int colCount) {
 // Function to convert matrix to row-echelon form
 void toRowEchelonForm(float **matrix, int rowCount, int colCount) {
     int lead = 0;
+    float epsilon = 1e-9; // Threshold for treating a number as zero
+
     for (int r = 0; r < rowCount; r++) {
         if (lead >= colCount) return;
+
         int i = r;
-        while (matrix[i][lead] == 0) {
+        // Use fabs() to handle precision issues when checking for zero
+        while (fabs(matrix[i][lead]) < epsilon) {
             i++;
             if (i == rowCount) {
                 i = r;
@@ -30,21 +35,26 @@ void toRowEchelonForm(float **matrix, int rowCount, int colCount) {
                 if (lead == colCount) return;
             }
         }
+
+        // Swap rows if a pivot was found in a lower row
         if (i != r) {
             swapRows(matrix, r, i, colCount);
         }
+
+        // Normalize the pivot row to have a leading 1
         float leadValue = matrix[r][lead];
-        if (leadValue != 0) {
+        if (fabs(leadValue) > epsilon) {
             for (int col = 0; col < colCount; col++) {
                 matrix[r][col] /= leadValue;
             }
         }
-        for (int row = 0; row < rowCount; row++) {
-            if (row != r) {
-                float factor = matrix[row][lead];
-                for (int col = 0; col < colCount; col++) {
-                    matrix[row][col] -= factor * matrix[r][col];
-                }
+
+        // Elimination: Only clear the values BELOW the current pivot
+        // This is what makes it REF instead of RREF
+        for (int row = r + 1; row < rowCount; row++) {
+            float factor = matrix[row][lead];
+            for (int col = 0; col < colCount; col++) {
+                matrix[row][col] -= factor * matrix[r][col];
             }
         }
         lead++;
