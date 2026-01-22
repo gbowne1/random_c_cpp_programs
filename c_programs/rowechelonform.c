@@ -3,6 +3,7 @@
 // Date:   11 MAY 2003
 // Time:   11:18:24
 // Brief:  This program uses the Gaussian elimination algorithm to convert a matrix to its row-echelon form
+// Updated: 21 JAN 2026
 
 #include <stdio.h>
 #include <stdlib.h>
