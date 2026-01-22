@@ -13,6 +13,15 @@
 
 #define M_PI 3.14159265358979323846
 
+typedef enum {
+    STEEL_CAST_IRON = 30,
+    COPPER_ALUMINUM_HARD = 10,
+    ALUMINUM_SOFT = 5,
+    LEAD_TIN = 1,
+    UNKNOWN = 0
+} MaterialClass;
+
+
 /**
  * @brief Calculates Brinell hardness.
  *
@@ -80,19 +89,37 @@ void print_summary(double P, double D, double d, double HB) {
 /**
  * @brief Validates inputs against ASTM E10 / ISO 6506 recommended limits.
  */
+
 void validate_against_standards(double P, double D, double d) {
-    (void)P;
     double d_D_ratio = d / D;
+    double k = P / (D * D);
+    
     printf("\n--- Standards Validation (ASTM E10 / ISO 6506) ---\n");
     printf("Indentation to Ball Ratio (d/D): %.5f\n", d_D_ratio);
+    printf("Calculated Loading Ratio (k):    %.2f\n", k);
 
+    // 1. Geometric Validity Check
     if (d_D_ratio < 0.24 || d_D_ratio > 0.6) {
-        printf("WARNING: d/D ratio out of recommended range [0.24–0.6] per ASTM E10.\n");
+        printf("WARNING: d/D ratio %.2f is outside the standard range [0.24–0.6].\n", d_D_ratio);
+        printf("         Results may be non-linear or inaccurate.\n");
     } else {
-        printf("PASS: d/D ratio within ASTM E10 / ISO 6506 recommended limits.\n");
+        printf("PASS: d/D ratio is within valid geometric limits.\n");
     }
 
-    // TODO: Add more checks for P/D² range per material class, if needed.
+    // 2. Loading Ratio Check (k = P/D^2)
+    // Common standard k values: 30, 15, 10, 5, 2.5, 1
+    printf("Material Check: ");
+    if (fabs(k - 30.0) < 0.1) {
+        printf("Verified for Heavy Metals/Steel (k=30).\n");
+    } else if (fabs(k - 10.0) < 0.1) {
+        printf("Verified for Light Alloys/Copper (k=10).\n");
+    } else if (fabs(k - 5.0) < 0.1) {
+        printf("Verified for Soft Aluminum/Zinc (k=5).\n");
+    } else if (fabs(k - 1.0) < 0.1) {
+        printf("Verified for Lead/Tin (k=1).\n");
+    } else {
+        printf("WARNING: Loading ratio k=%.2f is non-standard.\n", k);
+    }
 }
 
 /**
