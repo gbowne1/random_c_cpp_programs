@@ -102,6 +102,7 @@ void backSubstitution(float **matrix, int rowCount, int colCount) {
 
 int main() {
     int rowCount, colCount;
+
     printf("Enter the number of rows and columns: ");
     if (scanf("%d %d", &rowCount, &colCount) != 2 || rowCount <= 0 || colCount <= 0) {
         fprintf(stderr, "Invalid input. Please enter positive integers for rows and columns.\n");
@@ -124,7 +125,7 @@ int main() {
     }
 
     // Read matrix elements
-    printf("Enter the elements of the matrix:\n");
+    printf("Enter the elements of the matrix (row by row):\n");
     for (int i = 0; i < rowCount; i++) {
         for (int j = 0; j < colCount; j++) {
             if (scanf("%f", &matrix[i][j]) != 1) {
@@ -139,7 +140,7 @@ int main() {
     toRowEchelonForm(matrix, rowCount, colCount);
 
     // Print the matrix in row-echelon form
-    printf("The matrix in row-echelon form is:\n");
+    printf("\nThe matrix in row-echelon form is:\n");
     for (int i = 0; i < rowCount; i++) {
         for (int j = 0; j < colCount; j++) {
             printf("%.2f\t", matrix[i][j]);
@@ -147,7 +148,14 @@ int main() {
         printf("\n");
     }
 
-    // Deallocate matrix
+    // If the matrix is augmented (n x n+1), solve the system
+    if (colCount == rowCount + 1) {
+        backSubstitution(matrix, rowCount, colCount);
+    } else {
+        printf("\nNote: Matrix is not augmented (Rows x Rows+1), skipping back-substitution.\n");
+    }
+
+    // Deallocate matrix memory
     deallocateMatrix(matrix, rowCount);
 
     return EXIT_SUCCESS;
